@@ -1,0 +1,46 @@
+$globals:
+  shell: bash
+  version: "5.2"
+  new_order: true
+  vars:
+    poetry_sync: "--sync"
+
+install:
+  phony: true
+  keep_ts: true
+  requires:
+    - p-lock.toml
+  commands:
+    - p install ${poetry_sync}
+
+format:
+  phony: true
+  requires:
+    - install
+  commands:
+    - black .
+    - ruff --fix-only .
+
+lint:
+  phony: true
+  requires:
+    - install
+  commands:
+    - black --check .
+    - ruff .
+    - mypy .
+    - p check
+
+tests:
+  phony: true
+  requires:
+    - install
+  commands:
+    - "pytest ${pytest_args} ${pytest_path} ${.extra}"
+
+p-lock.toml:
+  update: true
+  requires:
+    - pyproject.toml
+  commands:
+    - p lock

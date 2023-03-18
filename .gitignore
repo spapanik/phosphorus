@@ -1,0 +1,21 @@
+# cache
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.cov_cache/
+
+# installation artifacts
+.yamk/
+p-lock.toml
+
+# Distribution / packaging
+docs/build/
+pip-wheel-metadata/
+dist/
+*.egg-info/
+
+# local dev
+/cookbook.toml.d/
+local.*
+local/

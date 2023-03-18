@@ -1,0 +1,76 @@
+["$globals"]
+shell = "bash"
+version = 4
+
+[install]
+phony = true
+keep_ts = true
+requires = [
+    "p-lock.toml",
+]
+commands = [
+    "p install ${install_extra}",
+]
+
+[format]
+phony = true
+requires = [
+    "install",
+]
+commands = [
+    "black .",
+    "ruff --fix-only .",
+]
+
+[lint]
+phony = true
+requires = [
+    "install",
+]
+commands = [
+    "black --check .",
+    "ruff .",
+    "mypy .",
+    "p check",
+]
+
+[tests]
+phony = true
+requires = [
+    "install",
+]
+commands = [
+    "pytest ${pytest_args} ${pytest_path}",
+]
+
+["docs/source"]
+exists_only = true
+recursive = true
+
+[docs]
+alias = "documentation"
+
+[documentation]
+phony = true
+keep_ts = true
+requires = [
+    "docs/source",
+]
+commands = [
+    "sphinx-build -b html docs/source docs/build",
+]
+
+[clean-docs]
+phony = true
+commands = [
+    "rm -r docs/build/",
+]
+
+["p-lock.toml"]
+update = true
+requires = [
+    "pyproject.toml",
+]
+commands = [
+    "p lock",
+]

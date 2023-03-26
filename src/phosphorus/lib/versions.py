@@ -6,6 +6,7 @@ from itertools import dropwhile
 from typing import TYPE_CHECKING, Any, Self
 
 from phosphorus.lib.constants import ComparisonOperator
+from phosphorus.lib.exceptions import UnreachableCodeError
 from phosphorus.lib.regex import version_pattern, version_separators
 
 if TYPE_CHECKING:
@@ -331,6 +332,9 @@ class VersionClause:
     identifier: Version
 
     def __post_init__(self) -> None:
+        if self.operator in ComparisonOperator.env_marker_operator():
+            msg = f"Only environment markers are permitted to use `{self.operator}`"
+            raise RuntimeError(msg)
         if not self.identifier.pep_440_compliant:
             if self.operator != ComparisonOperator.EXACT_MATCH:
                 msg = "Non PEP-440 versions can only be compared with ==="
@@ -394,6 +398,8 @@ class VersionClause:
                 return self.match_gt(candidate)
             case ComparisonOperator.EXACT_MATCH:
                 return self.match_exact(candidate)
+            case _:
+                raise UnreachableCodeError
 
     def match_compatible(self, candidate: Version) -> bool:
         if not self.match_geq(candidate):

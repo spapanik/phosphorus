@@ -3,13 +3,16 @@ from __future__ import annotations
 import json
 from collections.abc import Iterable
 from dataclasses import dataclass, field
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
 
 from phosphorus.lib.constants import pypi_cache
 from phosphorus.lib.utils import canonicalise_name
 from phosphorus.lib.versions import Version, VersionClause
+
+if TYPE_CHECKING:
+    from phosphorus.lib.requirements import Requirement
 
 
 @dataclass(frozen=True, slots=True, order=True)
@@ -51,6 +54,8 @@ class Package:
     def get_version_info(
         self, version: Version, *, last_check: float = float("inf")
     ) -> PackageVersionInfo:
+        from phosphorus.lib.requirements import Requirement
+
         info = self._get_version_info(version.canonical_form, last_check=last_check)
         return PackageVersionInfo(
             package=self,
@@ -60,7 +65,10 @@ class Package:
                 VersionClause.from_string(version.strip())
                 for version in (info["requires_python"] or "*").split(",")
             ],
-            requires_dist=info["requires_dist"] or [],
+            requires_dist=[
+                Requirement.from_string(requirement)
+                for requirement in info["requires_dist"] or []
+            ],
         )
 
     def _get_version_info(
@@ -137,4 +145,4 @@ class PackageVersionInfo:
     version: Version
     yanked: bool
     requires_python: list[VersionClause]
-    requires_dist: list[str]
+    requires_dist: list[Requirement]

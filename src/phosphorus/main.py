@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 from phosphorus.__version__ import __version__
 from phosphorus.commands.base import BaseCommand
 from phosphorus.commands.build import BuildCommand
+from phosphorus.commands.lock import LockCommand
 from phosphorus.lib.exceptions import UnreachableCodeError
 
 sys.tracebacklimit = 0
@@ -16,6 +17,21 @@ def add_build_args(parser: ArgumentParser) -> None:
     parser.add_argument("--sdist", action="store_true")
     parser.add_argument("--no-wheel", action="store_false", dest="wheel")
     parser.add_argument("--wheel", action="store_true")
+
+
+def add_lock_args(parser: ArgumentParser) -> None:
+    parser.add_argument(
+        "--no-enforce-pep440", action="store_false", dest="enforce_pep440"
+    )
+    parser.add_argument("--enforce-pep440", action="store_true")
+    parser.add_argument("--allow-pre-releases", action="store_true")
+    parser.add_argument(
+        "--no-allow-pre-releases", action="store_false", dest="allow_pre_releases"
+    )
+    parser.add_argument("--allow-dev-releases", action="store_true")
+    parser.add_argument(
+        "--no-allow-dev-releases", action="store_false", dest="allow_dev_releases"
+    )
 
 
 def get_parser() -> ArgumentParser:
@@ -50,6 +66,11 @@ def get_parser() -> ArgumentParser:
     )
     add_build_args(build_parser)
 
+    lock_parser = subparsers.add_parser(
+        "lock", parents=[parent_parser], help="Lock the project dependencies"
+    )
+    add_lock_args(lock_parser)
+
     return parser
 
 
@@ -62,6 +83,8 @@ def main() -> None:
     command: BaseCommand
     if args.command == "build":
         command = BuildCommand(args)
+    elif args.command == "lock":
+        command = LockCommand(args)
     else:
         raise UnreachableCodeError("")
     command()

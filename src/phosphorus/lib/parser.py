@@ -53,6 +53,31 @@ def parse_args() -> Namespace:
         help="build the wheel distribution",
     )
 
+    lock_parser = subparsers.add_parser(
+        "lock", parents=[parent_parser], help="lock the project dependencies"
+    )
+    lock_parser.add_argument(
+        "-f", "--force", action="store_true", help="force recreating the lock"
+    )
+    lock_parser.add_argument(
+        "--enforce-pep440",
+        action=BooleanOptionalAction,
+        default=True,
+        help="enforce PEP 440",
+    )
+    lock_parser.add_argument(
+        "--allow-pre-releases",
+        action=BooleanOptionalAction,
+        default=False,
+        help="allow pre-releases",
+    )
+    lock_parser.add_argument(
+        "--allow-dev-releases",
+        action=BooleanOptionalAction,
+        default=False,
+        help="allow dev releases",
+    )
+
     args = parser.parse_args()
     if args.verbosity > 0:
         sys.tracebacklimit = 1000

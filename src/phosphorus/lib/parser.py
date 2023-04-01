@@ -53,6 +53,31 @@ def parse_args() -> Namespace:
         help="build the wheel distribution",
     )
 
+    install_parser = subparsers.add_parser(
+        "install", parents=[parent_parser], help="install the project dependencies"
+    )
+    install_parser.add_argument(
+        "--sync",
+        action=BooleanOptionalAction,
+        default=False,
+        help="sync the dependencies, by removing the ones that are not in the lock file",
+    )
+    dependency_groups = install_parser.add_mutually_exclusive_group()
+    dependency_groups.add_argument(
+        "-e",
+        "--exclude",
+        action="append",
+        default=[],
+        help="exclude a group of dependencies",
+    )
+    dependency_groups.add_argument(
+        "-g",
+        "--groups",
+        action="append",
+        default=[],
+        help="install a group of dependencies",
+    )
+
     lock_parser = subparsers.add_parser(
         "lock", parents=[parent_parser], help="lock the project dependencies"
     )

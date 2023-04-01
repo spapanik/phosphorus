@@ -139,6 +139,7 @@ repository = "https://github.com/spapanik/phosphorus"
 documentation = "https://phosphorus.readthedocs.io/en/stable/"
 
 [tool.phosphorus.scripts]
+# TODO: run the script
 p = "phosphorus.main:main"
 
 [tool.phosphorus.dependencies.main]

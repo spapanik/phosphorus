@@ -6,6 +6,7 @@ from subprocess import run
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING, Self
 
+from phosphorus.lib.constants import hash_prefix
 from phosphorus.lib.exceptions import PipError
 from phosphorus.lib.requirements import Requirement
 
@@ -30,7 +31,6 @@ class LockEntry:
     def from_resolution(cls, resolution: list[str]) -> Self:
         requirement = Requirement.from_string(resolution[0])
         clause = requirement.clauses[0]
-        hash_prefix = "--hash=sha256:"
         return cls(
             package=requirement.package,
             version=clause.identifier,

@@ -5,8 +5,9 @@ from functools import total_ordering
 from itertools import dropwhile
 from typing import Any
 
+from phosphorus.lib.exceptions import UnreachableCodeError
 from phosphorus.lib.regex import version_pattern, version_separators
-from phosphorus.lib.types import Match
+from phosphorus.lib.types import Match, VersionOperator
 
 
 @dataclass(frozen=True, order=True)
@@ -320,3 +321,130 @@ class Version:
             prefix_match=self.prefix_match,
             match_all=self.match_all,
         )
+
+
+@dataclass(frozen=True, order=True)
+class VersionClause:
+    operator: VersionOperator
+    identifier: Version
+
+    def __post_init__(self) -> None:
+        if not self.identifier.pep_440_compliant:
+            if self.operator != "===":
+                msg = "Non PEP-440 versions can only be compared with ==="
+                raise RuntimeError(msg)
+            return
+        if self.operator in {"~=", "<=", ">=", "<", ">"}:
+            if self.identifier.local:
+                msg = "Local version identifiers are not permitted with this type of clause"
+                raise RuntimeError(msg)
+            if self.operator == "~=" and len(self.identifier.release.full_release) == 1:
+                msg = (
+                    "Compatible release operator is not permitted with single segments"
+                )
+                raise RuntimeError(msg)
+        if self.operator not in {"==", "!="} and self.identifier.prefix_match:
+            msg = "Prefix match is only allowed in match or exclusion"
+            raise RuntimeError(msg)
+
+    def __str__(self) -> str:
+        return f"{self.operator}{self.identifier}"
+
+    @classmethod
+    def from_string(cls, clause: str) -> VersionClause:
+        if clause.startswith("==="):
+            operator_length = 3
+            operator: VersionOperator = "==="
+        elif clause[:2] in {"<=", "!=", "==", ">=", "~="}:
+            operator_length = 2
+            operator = clause[:2]  # type: ignore[assignment]
+        elif clause[:1] in {"<", ">"}:
+            operator_length = 1
+            operator = clause[:1]  # type: ignore[assignment]
+        else:
+            operator_length = 0
+            operator = "=="
+        return VersionClause(
+            operator=operator, identifier=Version.from_string(clause[operator_length:])
+        )
+
+    def match(self, candidate: Version) -> bool:
+        if not (self.identifier.pep_440_compliant and candidate.pep_440_compliant):
+            return self.match_exact(candidate)
+        if self.operator == "~=":
+            return self.match_compatible(candidate)
+        if self.operator == "==":
+            return self.match_equality(candidate)
+        if self.operator == "!=":
+            return not self.match_equality(candidate)
+        if self.operator == "<=":
+            return self.match_leq(candidate)
+        if self.operator == ">=":
+            return self.match_geq(candidate)
+        if self.operator == "<":
+            return self.match_lt(candidate)
+        if self.operator == ">":
+            return self.match_gt(candidate)
+        if self.operator == "===":
+            return self.match_exact(candidate)
+
+        raise UnreachableCodeError("")
+
+    def match_compatible(self, candidate: Version) -> bool:
+        if not self.match_geq(candidate):
+            return False
+
+        release_parts = str(self.identifier.release).split(".")
+        release_parts[-1] = "*"
+        wildcard = Version.from_string(
+            f"{self.identifier.epoch}{'.'.join(release_parts)}"
+        )
+        return VersionClause(operator="==", identifier=wildcard).match(candidate)
+
+    def match_equality(self, candidate: Version) -> bool:
+        if candidate.epoch != self.identifier.epoch:
+            return self.identifier.epoch.epoch == -1
+
+        if self.identifier.match_all:
+            return True
+
+        if not self.identifier.prefix_match:
+            if self.identifier.local.local:
+                return candidate == self.identifier
+            return candidate.public_version == self.identifier.public_version
+
+        if not self.identifier.is_base_version:
+            return candidate.canonical_form.startswith(self.identifier.canonical_form)
+
+        if not candidate.is_base_version:
+            candidate = candidate.base_version
+
+        n = len(self.identifier.release.full_release)
+        if len(candidate.release.full_release) <= n:
+            candidate = candidate.padded(n)
+        return str(candidate).startswith(str(self.identifier))
+
+    def match_leq(self, candidate: Version) -> bool:
+        return candidate <= self.identifier
+
+    def match_geq(self, candidate: Version) -> bool:
+        return candidate >= self.identifier
+
+    def match_lt(self, candidate: Version) -> bool:
+        candidate = candidate.public_version
+
+        if self.identifier.is_pre_release:
+            return candidate < self.identifier
+
+        return candidate.base_version < self.identifier
+
+    def match_gt(self, candidate: Version) -> bool:
+        candidate = candidate.public_version
+
+        if self.identifier.is_post_release:
+            return candidate > self.identifier
+
+        return candidate.base_version > self.identifier
+
+    def match_exact(self, candidate: Version) -> bool:
+        return candidate == self.identifier

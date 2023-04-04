@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 from urllib.error import HTTPError
@@ -12,6 +11,8 @@ from phosphorus.lib.utils import canonicalise_name
 from phosphorus.lib.versions import Version, VersionClause
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from phosphorus.lib.requirements import Requirement
 
 
@@ -20,7 +21,7 @@ class Package:
     name: str
     distribution_name: str = field(repr=False, compare=False)
 
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         name = canonicalise_name(name)
         object.__setattr__(self, "name", name)
         object.__setattr__(self, "distribution_name", name.replace("-", "_"))

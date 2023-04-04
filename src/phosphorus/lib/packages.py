@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from collections.abc import Iterable
 from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 from urllib.error import HTTPError
@@ -12,6 +11,8 @@ from phosphorus.lib.utils import canonicalise_name
 from phosphorus.lib.versions import Version, VersionClause
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from phosphorus.lib.requirements import Requirement
 
 
@@ -20,10 +21,13 @@ class Package:
     name: str
     distribution_name: str = field(repr=False, compare=False)
 
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         name = canonicalise_name(name)
         object.__setattr__(self, "name", name)
         object.__setattr__(self, "distribution_name", name.replace("-", "_"))
+
+    def __str__(self) -> str:
+        return self.name
 
     def get_versions(
         self,
@@ -53,11 +57,11 @@ class Package:
 
     def get_version_info(
         self, version: Version, *, last_check: float = float("inf")
-    ) -> PackageVersionInfo:
+    ) -> ResolvedPackage:
         from phosphorus.lib.requirements import Requirement
 
         info = self._get_version_info(version.canonical_form, last_check=last_check)
-        return PackageVersionInfo(
+        return ResolvedPackage(
             package=self,
             version=version,
             yanked=info["yanked"],
@@ -140,7 +144,7 @@ class Package:
 
 
 @dataclass(frozen=True, slots=True, order=True)
-class PackageVersionInfo:
+class ResolvedPackage:
     package: Package
     version: Version
     yanked: bool

@@ -9,6 +9,8 @@ from pathlib import Path
 
 package_cache = Path.home().joinpath(".cache/phosphorus/packages/")
 pypi_cache = package_cache.joinpath("PyPI")
+pyproject_base_name = "pyproject.toml"
+lock_file_name = "p-lock.toml"
 
 
 @unique

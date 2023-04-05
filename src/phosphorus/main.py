@@ -2,8 +2,20 @@ import sys
 from argparse import ArgumentParser
 
 from phosphorus.__version__ import __version__
+from phosphorus.commands.base import BaseCommand
+from phosphorus.commands.build import BuildCommand
+from phosphorus.lib.exceptions import UnreachableCodeError
 
 sys.tracebacklimit = 0
+
+
+def add_build_args(parser: ArgumentParser) -> None:
+    parser.add_argument("--metadata", action="store_true")
+    parser.add_argument("--no-metadata", action="store_false", dest="metadata")
+    parser.add_argument("--no-sdist", action="store_false", dest="sdist")
+    parser.add_argument("--sdist", action="store_true")
+    parser.add_argument("--no-wheel", action="store_false", dest="wheel")
+    parser.add_argument("--wheel", action="store_true")
 
 
 def get_parser() -> ArgumentParser:
@@ -31,6 +43,13 @@ def get_parser() -> ArgumentParser:
     subparsers = parser.add_subparsers(dest="command")
     subparsers.required = True
 
+    build_parser = subparsers.add_parser(
+        "build",
+        parents=[parent_parser],
+        help="Build the wheel and the sdist distributions for the package.",
+    )
+    add_build_args(build_parser)
+
     return parser
 
 
@@ -40,3 +59,9 @@ def main() -> None:
         if args.verbose > 1:
             print(args)
         sys.tracebacklimit = 9999
+    command: BaseCommand
+    if args.command == "build":
+        command = BuildCommand(args)
+    else:
+        raise UnreachableCodeError("")
+    command()

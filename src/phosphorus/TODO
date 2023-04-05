@@ -1,0 +1,5 @@
+* Build sdist
+* Get dependency resolution working
+* Install editable
+* Use in-house marker
+* Run command in venv

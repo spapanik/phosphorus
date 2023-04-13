@@ -1,11 +1,12 @@
 import sys
-from argparse import ArgumentParser
+from argparse import REMAINDER, ArgumentParser
 
 from phosphorus.__version__ import __version__
 from phosphorus.commands.base import BaseCommand
 from phosphorus.commands.build import BuildCommand
 from phosphorus.commands.install import InstallCommand
 from phosphorus.commands.lock import LockCommand
+from phosphorus.commands.run import RunCommand
 from phosphorus.lib.exceptions import UnreachableCodeError
 
 sys.tracebacklimit = 0
@@ -41,6 +42,11 @@ def add_lock_args(parser: ArgumentParser) -> None:
     parser.add_argument(
         "--no-allow-dev-releases", action="store_false", dest="allow_dev_releases"
     )
+
+
+def add_run_args(parser: ArgumentParser) -> None:
+    parser.add_argument("-g", "--group", default="main")
+    parser.add_argument("actual", nargs=REMAINDER)
 
 
 def get_parser() -> ArgumentParser:
@@ -85,6 +91,11 @@ def get_parser() -> ArgumentParser:
     )
     add_lock_args(lock_parser)
 
+    run_parser = subparsers.add_parser(
+        "run", parents=[parent_parser], help="Run a command"
+    )
+    add_run_args(run_parser)
+
     return parser
 
 
@@ -101,6 +112,8 @@ def main() -> None:
         command = InstallCommand(args)
     elif args.command == "lock":
         command = LockCommand(args)
+    elif args.command == "run":
+        command = RunCommand(args)
     else:
         raise UnreachableCodeError("")
     command()

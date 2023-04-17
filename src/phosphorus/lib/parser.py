@@ -53,6 +53,10 @@ def parse_args() -> Namespace:
         help="build the wheel distribution",
     )
 
+    subparsers.add_parser(
+        "check", parents=[parent_parser], help="check that the lock file is up to date"
+    )
+
     install_parser = subparsers.add_parser(
         "install", parents=[parent_parser], help="install the project dependencies"
     )

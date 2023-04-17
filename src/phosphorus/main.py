@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 from phosphorus.__version__ import __version__
 from phosphorus.commands.base import BaseCommand
 from phosphorus.commands.build import BuildCommand
+from phosphorus.commands.check import CheckCommand
 from phosphorus.commands.install import InstallCommand
 from phosphorus.commands.lock import LockCommand
 from phosphorus.lib.exceptions import UnreachableCodeError
@@ -75,6 +76,10 @@ def get_parser() -> ArgumentParser:
     )
     add_build_args(build_parser)
 
+    subparsers.add_parser(
+        "check", parents=[parent_parser], help="Check that the lock file is up to date."
+    )
+
     install_parser = subparsers.add_parser(
         "install", parents=[parent_parser], help="Install the project dependencies."
     )
@@ -97,6 +102,8 @@ def main() -> None:
     command: BaseCommand
     if args.command == "build":
         command = BuildCommand(args)
+    elif args.command == "check":
+        command = CheckCommand(args)
     elif args.command == "install":
         command = InstallCommand(args)
     elif args.command == "lock":

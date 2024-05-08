@@ -26,3 +26,11 @@ class ImproperlyConfiguredProjectError(RuntimeError):
     def __init__(self, key: str) -> None:
         msg = f"The pyproject.toml file is missing the key: {key} and isn't marked as dynamic"
         super().__init__(msg)
+
+
+class ThirdPartyError(RuntimeError):
+    """A third party cli tool exited unsuccessfully"""
+
+    def __init__(self, command: str) -> None:
+        msg = f"Command `{command}` exited with a non-zero status code"
+        super().__init__(msg)

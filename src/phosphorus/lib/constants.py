@@ -11,6 +11,7 @@ package_cache = Path.home().joinpath(".cache/phosphorus/packages/")
 pypi_cache = package_cache.joinpath("PyPI")
 pyproject_base_name = "pyproject.toml"
 lock_file_name = "p-lock.toml"
+hash_prefix = "--hash=sha256:"
 
 
 @unique

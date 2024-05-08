@@ -1,9 +1,15 @@
 import sys
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser, BooleanOptionalAction, Namespace
 
 from phosphorus.__version__ import __version__
 
 sys.tracebacklimit = 0
+
+
+def add_build_args(parser: ArgumentParser) -> None:
+    parser.add_argument("--metadata", action=BooleanOptionalAction, default=False)
+    parser.add_argument("--sdist", action=BooleanOptionalAction, default=True)
+    parser.add_argument("--wheel", action=BooleanOptionalAction, default=True)
 
 
 def parse_args() -> Namespace:
@@ -27,7 +33,25 @@ def parse_args() -> Namespace:
         help="increase the level of verbosity",
     )
 
-    parser.add_subparsers(dest="subcommand", required=True)
+    subparsers = parser.add_subparsers(dest="subcommand", required=True)
+
+    build_parser = subparsers.add_parser(
+        "build",
+        parents=[parent_parser],
+        help="build the wheel and the sdist distributions for the package",
+    )
+    build_parser.add_argument(
+        "--sdist",
+        action=BooleanOptionalAction,
+        default=True,
+        help="build the sdist distribution",
+    )
+    build_parser.add_argument(
+        "--wheel",
+        action=BooleanOptionalAction,
+        default=True,
+        help="build the wheel distribution",
+    )
 
     args = parser.parse_args()
     if args.verbosity > 0:

@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+### Fixed
+
+-   Fixed status code after successful installations
+
 ## [0.1.1] - 2024-07-04
 
 ### Added

@@ -178,8 +178,8 @@ class InstallCommand(BaseCommand):
                 print("🗸")
             else:
                 print()
-            command = "uv pip install"
-            raise ThirdPartyError(command)
+                command = "uv pip install"
+                raise ThirdPartyError(command)
 
     def remove_package(self, old_package: ResolvedRequirement) -> None:
         package = old_package.package

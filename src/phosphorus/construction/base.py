@@ -123,4 +123,4 @@ class Builder:
         if readme_text := self.meta.readme.read_text():
             yield "Description-Content-Type: text/markdown"
             yield ""
-            yield readme_text
+            yield readme_text.rstrip("\n")

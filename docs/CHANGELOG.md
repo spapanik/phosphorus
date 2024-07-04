@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 ### Fixed
 
 -   Fixed status code after successful installations
+-   Removed extra whitespace in METADATA
 
 ## [0.1.1] - 2024-07-04
 

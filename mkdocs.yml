@@ -1,6 +1,6 @@
-site_name: phosporus
+site_name: phosphorus
 
-repo_url: https://github.com/spapanik/phosporus
+repo_url: https://github.com/spapanik/phosphorus
 
 nav:
   - Home: README.md

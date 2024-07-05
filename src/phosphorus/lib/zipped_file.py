@@ -4,46 +4,63 @@ import hashlib
 from base64 import urlsafe_b64encode
 from dataclasses import dataclass
 from stat import S_ISDIR
+from tarfile import TarInfo
 from typing import TYPE_CHECKING, Self
 from zipfile import ZipInfo
 
 if TYPE_CHECKING:
-    from os import stat_result
     from pathlib import Path
 
 
-@dataclass(frozen=True, slots=True)
-class ZippedFile:
+@dataclass(frozen=True, slots=True, order=True)
+class ArchiveFile:
+    absolute_path: Path
     path: Path
     digest: str
     size: int
-    zip_info: ZipInfo
+    mode: int
 
     @classmethod
     def from_file(cls, source: Path, target: Path) -> Self:
-        date_time = (1980, 1, 1, 0, 0, 0)
-        zip_info = ZipInfo(target.as_posix(), date_time=date_time)
         stat = source.stat()
 
-        zip_info.external_attr = cls.standardise_attributes(stat)
-
         return cls(
+            absolute_path=source,
             path=target,
             digest=cls.hash_file(source),
             size=stat.st_size,
-            zip_info=zip_info,
+            mode=stat.st_mode,
         )
 
-    @staticmethod
-    def standardise_attributes(stat: stat_result) -> int:
-        external_attr = (stat.st_mode | 0o644) & ~0o133
-        if stat.st_mode & 0o100:
-            external_attr |= 0o111
-        external_attr = (external_attr & 0xFFFF) << 16
-        if S_ISDIR(stat.st_mode):
-            external_attr |= 0x10
+    @property
+    def zip_info(self) -> ZipInfo:
+        date_time = (1980, 1, 1, 0, 0, 0)
+        zip_info = ZipInfo(self.path.as_posix(), date_time=date_time)
+        zip_info.external_attr = self.normalised_mode()
+        return zip_info
 
-        return external_attr
+    @property
+    def tar_info(self) -> TarInfo:
+        tarinfo = TarInfo(self.path.as_posix())
+        tarinfo.mtime = 0
+        tarinfo.uid = 0
+        tarinfo.gid = 0
+        tarinfo.uname = ""
+        tarinfo.gname = ""
+        tarinfo.mode = self.normalised_mode(for_zip=False)
+        tarinfo.size = self.size
+        return tarinfo
+
+    def normalised_mode(self, *, for_zip: bool = True) -> int:
+        mode = (self.mode | 0o644) & ~0o133
+        if self.mode & 0o100:
+            mode |= 0o111
+        if for_zip:
+            mode = (mode & 0xFFFF) << 16
+            if S_ISDIR(self.mode):
+                mode |= 0x10
+
+        return mode
 
     @staticmethod
     def hash_file(path: Path, buffer_size: int = 2**16) -> str:

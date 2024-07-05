@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+### Fixed
+
+-   Fixed sdist file type, making it an actual tar.gz
+
 ## [0.1.2] - 2024-07-04
 
 ### Fixed

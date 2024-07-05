@@ -1,13 +1,15 @@
+import csv
 import shutil
 from collections.abc import Iterator
 from pathlib import Path
 from typing import Any
+from zipfile import ZIP_DEFLATED, ZipFile
 
 from phosphorus.__version__ import __version__
 from phosphorus.construction.base import Builder
 from phosphorus.lib.licenses import get_license_files
 from phosphorus.lib.tags import Tag
-from phosphorus.lib.zipped_file import ZippedFile
+from phosphorus.lib.zipped_file import ArchiveFile
 
 
 class WheelBuilder(Builder):
@@ -41,30 +43,56 @@ class WheelBuilder(Builder):
     def wheel_filenames(self) -> dict[Tag, str]:
         return {tag: f"{self.base_name}-{tag}.whl" for tag in self.meta.tags}
 
-    def collect_files(self, temp_dir: Path) -> dict[Path, ZippedFile]:
-        output: dict[Path, ZippedFile] = {}
+    def collect_files(self, temp_dir: Path) -> list[ArchiveFile]:
+        output = []
         if self.editable:
             file = self.create_pth(temp_dir)
-            output[file] = ZippedFile.from_file(
-                source=file, target=file.relative_to(temp_dir)
+            output.append(
+                ArchiveFile.from_file(source=file, target=file.relative_to(temp_dir))
             )
         else:
             for package in self.meta.package_paths:
-                for file in package.path.glob("**/*"):
-                    if file.is_file():
-                        output[file] = ZippedFile.from_file(
-                            source=file, target=file.relative_to(package.path)
-                        )
-
-        for file in self.prepare_metadata(temp_dir).glob("**/*"):
-            if not file.is_file():
-                continue
-
-            output[file] = ZippedFile.from_file(
-                source=file, target=file.relative_to(temp_dir)
-            )
-
+                output.extend(
+                    ArchiveFile.from_file(
+                        source=file, target=file.relative_to(package.path)
+                    )
+                    for file in package.path.glob("**/*")
+                    if file.is_file()
+                )
+        output.extend(
+            ArchiveFile.from_file(source=file, target=file.relative_to(temp_dir))
+            for file in self.prepare_metadata(temp_dir).glob("**/*")
+            if file.is_file()
+        )
         return output
+
+    def write_files(
+        self, files: list[ArchiveFile], package: Path, temp_dir: Path
+    ) -> None:
+        with ZipFile(package, mode="w", compression=ZIP_DEFLATED) as zip_file:
+            rows = []
+            for archive_file in sorted(files):
+                zip_file.writestr(
+                    archive_file.zip_info,
+                    archive_file.absolute_path.read_bytes(),
+                    compress_type=ZIP_DEFLATED,
+                )
+                rows.append([archive_file.path, archive_file.digest, archive_file.size])
+
+            record = temp_dir.joinpath("RECORD")
+            rows.append([self.record_target, "", ""])
+            with record.open("w") as csv_file:
+                write = csv.writer(csv_file)
+                write.writerows(rows)
+
+            record_info = ArchiveFile.from_file(
+                source=record, target=self.record_target
+            )
+            zip_file.writestr(
+                record_info.zip_info,
+                record.read_bytes(),
+                compress_type=ZIP_DEFLATED,
+            )
 
     @property
     def record_target(self) -> Path:

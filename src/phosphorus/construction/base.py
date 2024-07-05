@@ -1,13 +1,11 @@
-import csv
 from collections.abc import Iterator
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
-from zipfile import ZIP_DEFLATED, ZipFile
 
 from phosphorus.lib.contributors import Contributor
 from phosphorus.lib.metadata import Metadata
-from phosphorus.lib.zipped_file import ZippedFile
+from phosphorus.lib.zipped_file import ArchiveFile
 
 
 class Builder:
@@ -37,35 +35,13 @@ class Builder:
     def filename(self) -> str:
         raise NotImplementedError
 
-    def collect_files(self, temp_dir: Path) -> dict[Path, ZippedFile]:
+    def collect_files(self, temp_dir: Path) -> list[ArchiveFile]:
         raise NotImplementedError
 
     def write_files(
-        self, files: dict[Path, ZippedFile], package: Path, temp_dir: Path
+        self, files: list[ArchiveFile], package: Path, temp_dir: Path
     ) -> None:
-        with ZipFile(package, mode="w", compression=ZIP_DEFLATED) as zip_file:
-            rows = []
-            for file, info in sorted(files.items(), key=lambda item: item[1].path):
-                zip_file.writestr(
-                    info.zip_info, file.read_bytes(), compress_type=ZIP_DEFLATED
-                )
-                rows.append([info.path, info.digest, info.size])
-
-            if self.record_target:
-                record = temp_dir.joinpath("RECORD")
-                rows.append([self.record_target, "", ""])
-                with record.open("w") as csv_file:
-                    write = csv.writer(csv_file)
-                    write.writerows(rows)
-
-                record_info = ZippedFile.from_file(
-                    source=record, target=self.record_target
-                )
-                zip_file.writestr(
-                    record_info.zip_info,
-                    record.read_bytes(),
-                    compress_type=ZIP_DEFLATED,
-                )
+        raise NotImplementedError
 
     @property
     def base_name(self) -> str:

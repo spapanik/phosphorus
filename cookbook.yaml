@@ -2,7 +2,7 @@ $globals:
   shell: bash
   version: "6.0"
   vars:
-    p_sync: "--sync"
+    p_sync: --sync
 
 install:
   phony: true

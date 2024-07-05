@@ -65,6 +65,7 @@ class InstallCommand(BaseCommand):
             print("🧹 Removing packages...")
             for old_package in package_diff["remove"]:
                 self.remove_package(old_package)
+        self.install_self()
 
     def get_groups(self, included: set[str], excluded: set[str]) -> set[str]:
         all_groups = {group.group for group in self.meta.requirement_groups}
@@ -203,4 +204,28 @@ class InstallCommand(BaseCommand):
         else:
             print()
             command = "uv pip uninstall"
+            raise ThirdPartyError(command)
+
+    def install_self(self) -> None:
+        print(
+            f"⏳ Installing {SGRString(str(self.meta.package), params=[SGRParams.CYAN])} "
+            f"({SGRString(str(self.meta.version), params=[SGRParams.BLUE_BRIGHT])})...",
+            end=" ",
+        )
+        output = run(  # noqa: PLW1510, S603
+            [  # noqa: S607
+                "uv",
+                "pip",
+                "install",
+                "--no-deps",
+                "--editable",
+                ".",
+            ],
+            capture_output=True,
+        )
+        if output.returncode == 0:
+            print("🗸")
+        else:
+            print()
+            command = "uv pip install"
             raise ThirdPartyError(command)

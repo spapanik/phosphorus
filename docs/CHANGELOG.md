@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 ### Fixed
 
 -   Fixed sdist file type, making it an actual tar.gz
+-   Fixed installation subcommand, to install the project in editable mode
 
 ## [0.1.2] - 2024-07-04
 

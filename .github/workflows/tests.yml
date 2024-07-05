@@ -63,7 +63,7 @@ jobs:
           python -m venv ~/.cache/venv-${{ matrix.python-version }}
           . ~/.cache/venv-${{ matrix.python-version }}/bin/activate
           yam install
-      - name: Lint the project
+      - name: Test the project
         run: |
           . ~/.cache/venv-${{ matrix.python-version }}/bin/activate
           yam tests

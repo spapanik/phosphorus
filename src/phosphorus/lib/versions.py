@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from functools import total_ordering
 from itertools import dropwhile
-from typing import TYPE_CHECKING, Any, Self
+from typing import TYPE_CHECKING, Any
 
 from phosphorus.lib.constants import ComparisonOperator
 from phosphorus.lib.exceptions import UnreachableCodeError
@@ -13,19 +13,19 @@ if TYPE_CHECKING:
     from phosphorus.lib.types import Match
 
 
-@dataclass(frozen=True, slots=True, order=True)
+@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
 class Epoch:
     epoch: int
 
     @classmethod
-    def from_string(cls, match: Match) -> Self:
+    def from_string(cls, match: Match) -> Epoch:  # TODO (py3.10): Use Self
         return cls(epoch=int(match or 0))
 
     def __str__(self) -> str:
         return f"{self.epoch}!" if self.epoch else ""
 
 
-@dataclass(frozen=True, slots=True, order=True)
+@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
 class Release:
     release: tuple[int, ...]
     full_release: tuple[int, ...] = field(repr=False, compare=False)
@@ -38,7 +38,7 @@ class Release:
         object.__setattr__(self, "full_release", full_release)
 
     @classmethod
-    def from_string(cls, match: str) -> Self:
+    def from_string(cls, match: str) -> Release:  # TODO (py3.10): Use Self
         full_release = tuple(int(segment) for segment in match.split("."))
         return cls(full_release=full_release)
 
@@ -67,7 +67,7 @@ class Release:
         except IndexError:
             return 0
 
-    def padded(self, zeroes: int) -> Self:
+    def padded(self, zeroes: int) -> Release:  # TODO (py3.10): Use Self
         n = len(self.release)
         if zeroes < n:
             msg = "Padding cannot truncate the release"
@@ -78,13 +78,15 @@ class Release:
         return self.__class__(full_release)
 
 
-@dataclass(frozen=True, slots=True, order=True)
+@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
 class Pre:
     letter: str
     number: int
 
     @classmethod
-    def from_string(cls, match_letter: Match, match_number: Match) -> Self:
+    def from_string(
+        cls, match_letter: Match, match_number: Match
+    ) -> Pre:  # TODO (py3.10): Use Self
         number = int(match_number or 0)
         letter = cls._canonicalize_letter(match_letter) if match_letter else "z"
         return cls(letter=letter, number=number)
@@ -109,12 +111,14 @@ class Pre:
         return letter
 
 
-@dataclass(frozen=True, slots=True, order=True)
+@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
 class Post:
     post: int
 
     @classmethod
-    def from_string(cls, match_letter: Match, match_number: Match) -> Self:
+    def from_string(
+        cls, match_letter: Match, match_number: Match
+    ) -> Post:  # TODO (py3.10): Use Self
         return cls(post=int(match_number or 0) if match_letter or match_number else -1)
 
     def __bool__(self) -> bool:
@@ -124,12 +128,14 @@ class Post:
         return f".post{self.post}" if self else ""
 
 
-@dataclass(frozen=True, slots=True, order=True)
+@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
 class Dev:
     dev: int | float
 
     @classmethod
-    def from_string(cls, match_letter: Match, match_number: Match) -> Self:
+    def from_string(
+        cls, match_letter: Match, match_number: Match
+    ) -> Dev:  # TODO (py3.10): Use Self
         return cls(dev=int(match_number or 0) if match_letter else float("inf"))
 
     def __bool__(self) -> bool:
@@ -139,12 +145,12 @@ class Dev:
         return f".dev{self.dev}" if self else ""
 
 
-@dataclass(frozen=True, slots=True, order=True)
+@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
 class Local:
     local: tuple[str | int, ...]
 
     @classmethod
-    def from_string(cls, match: Match) -> Self:
+    def from_string(cls, match: Match) -> Local:  # TODO (py3.10): Use Self
         local_version = (
             tuple(
                 int(part) if part.isdigit() else part.lower()
@@ -166,7 +172,7 @@ class Local:
 
 
 @total_ordering
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)  # TODO (py3.9): Use slots=True
 class Version:
     epoch: Epoch
     release: Release
@@ -179,7 +185,7 @@ class Version:
     pep_440_compliant: bool = field(repr=False, default=True)
 
     @classmethod
-    def from_string(cls, version: str) -> Self:
+    def from_string(cls, version: str) -> Version:  # TODO (py3.10): Use Self
         if version == "*" or version.endswith("!*"):
             epoch = int(version[:-2]) if version.endswith("!*") else -1
             return cls(
@@ -295,7 +301,7 @@ class Version:
         return not (self.post or self.pre or self.dev or self.local)
 
     @property
-    def base_version(self) -> Self:
+    def base_version(self) -> Version:  # TODO (py3.10): Use Self
         if self.is_base_version:
             return self
         return self.__class__.from_string(f"{self.epoch}{self.release}")
@@ -305,12 +311,12 @@ class Version:
         return f"{self.epoch}{self.release.canonical_form}{self.pre}{self.post}{self.dev}{self.local}"
 
     @property
-    def public_version(self) -> Self:
+    def public_version(self) -> Version:  # TODO (py3.10): Use Self
         return self.__class__.from_string(
             f"{self.epoch}{self.release.canonical_form}{self.pre}{self.post}{self.dev}"
         )
 
-    def padded(self, zeroes: int) -> Self:
+    def padded(self, zeroes: int) -> Version:  # TODO (py3.10): Use Self
         release = self.release.padded(zeroes)
         if release.full_release == self.release.full_release:
             return self
@@ -326,7 +332,7 @@ class Version:
         )
 
 
-@dataclass(frozen=True, slots=True, order=True)
+@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
 class VersionClause:
     operator: ComparisonOperator
     identifier: Version
@@ -363,7 +369,7 @@ class VersionClause:
         return f"{self.operator}{self.identifier}"
 
     @classmethod
-    def from_string(cls, clause: str) -> Self:
+    def from_string(cls, clause: str) -> VersionClause:  # TODO (py3.10): Use Self
         for candidate in ComparisonOperator:
             if clause.startswith(candidate.value):
                 operator_length = len(candidate.value)
@@ -381,25 +387,26 @@ class VersionClause:
         if not (self.identifier.pep_440_compliant and candidate.pep_440_compliant):
             return self.match_exact(candidate)
 
-        match self.operator:
-            case ComparisonOperator.COMPATIBLE_WITH:
-                return self.match_compatible(candidate)
-            case ComparisonOperator.EQUAL_TO:
-                return self.match_equality(candidate)
-            case ComparisonOperator.NOT_EQUAL:
-                return not self.match_equality(candidate)
-            case ComparisonOperator.LESS_OR_EQUAL:
-                return self.match_leq(candidate)
-            case ComparisonOperator.GREATER_OR_EQUAL:
-                return self.match_geq(candidate)
-            case ComparisonOperator.LESS_THAN:
-                return self.match_lt(candidate)
-            case ComparisonOperator.GREATER_THAN:
-                return self.match_gt(candidate)
-            case ComparisonOperator.EXACT_MATCH:
-                return self.match_exact(candidate)
-            case _:
-                raise UnreachableCodeError
+        if (
+            self.operator == ComparisonOperator.COMPATIBLE_WITH
+        ):  # TODO (py3.9): Use match
+            return self.match_compatible(candidate)
+        if self.operator == ComparisonOperator.EQUAL_TO:
+            return self.match_equality(candidate)
+        if self.operator == ComparisonOperator.NOT_EQUAL:
+            return not self.match_equality(candidate)
+        if self.operator == ComparisonOperator.LESS_OR_EQUAL:
+            return self.match_leq(candidate)
+        if self.operator == ComparisonOperator.GREATER_OR_EQUAL:
+            return self.match_geq(candidate)
+        if self.operator == ComparisonOperator.LESS_THAN:
+            return self.match_lt(candidate)
+        if self.operator == ComparisonOperator.GREATER_THAN:
+            return self.match_gt(candidate)
+        if self.operator == ComparisonOperator.EXACT_MATCH:
+            return self.match_exact(candidate)
+
+        raise UnreachableCodeError
 
     def match_compatible(self, candidate: Version) -> bool:
         if not self.match_geq(candidate):

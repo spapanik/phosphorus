@@ -80,39 +80,37 @@ class MarkerVariable(Enum):
         return self.value
 
     def get_env_value(self, extra: str = "") -> str:
-        match self:
-            case MarkerVariable.PYTHON_VERSION:
-                return ".".join(platform.python_version_tuple()[:2])
-            case MarkerVariable.PYTHON_FULL_VERSION:
-                return platform.python_version()
-            case MarkerVariable.OS_NAME:
-                return os.name
-            case MarkerVariable.SYS_PLATFORM:
-                return sys.platform
-            case MarkerVariable.PLATFORM_RELEASE:
-                return platform.release()
-            case MarkerVariable.PLATFORM_SYSTEM:
-                return platform.system()
-            case MarkerVariable.PLATFORM_VERSION:
-                return platform.version()
-            case MarkerVariable.PLATFORM_MACHINE:
-                return platform.machine()
-            case MarkerVariable.PLATFORM_PYTHON_IMPLEMENTATION:
-                return platform.python_implementation()
-            case MarkerVariable.IMPLEMENTATION_NAME:
-                if not hasattr(sys, "implementation"):
-                    return ""
-                return sys.implementation.name
-            case MarkerVariable.IMPLEMENTATION_VERSION:
-                if not hasattr(sys, "implementation"):
-                    return "0"
-                info = sys.implementation.version
-                version = f"{info.major}.{info.minor}.{info.micro}"
-                if (kind := info.releaselevel) == "final":
-                    return version
-                return f"{version}{kind[0]}{info.serial}"
-            case MarkerVariable.EXTRA:
-                return extra
+        if self == MarkerVariable.PYTHON_VERSION:  # TODO (py3.9): Use match
+            return ".".join(platform.python_version_tuple()[:2])
+        if self == MarkerVariable.PYTHON_FULL_VERSION:
+            return platform.python_version()
+        if self == MarkerVariable.OS_NAME:
+            return os.name
+        if self == MarkerVariable.SYS_PLATFORM:
+            return sys.platform
+        if self == MarkerVariable.PLATFORM_RELEASE:
+            return platform.release()
+        if self == MarkerVariable.PLATFORM_SYSTEM:
+            return platform.system()
+        if self == MarkerVariable.PLATFORM_VERSION:
+            return platform.version()
+        if self == MarkerVariable.PLATFORM_MACHINE:
+            return platform.machine()
+        if self == MarkerVariable.PLATFORM_PYTHON_IMPLEMENTATION:
+            return platform.python_implementation()
+        if self == MarkerVariable.IMPLEMENTATION_NAME:
+            if not hasattr(sys, "implementation"):
+                return ""
+            return sys.implementation.name
+        if self == MarkerVariable.IMPLEMENTATION_VERSION:
+            if not hasattr(sys, "implementation"):
+                return "0"
+            info = sys.implementation.version
+            version = f"{info.major}.{info.minor}.{info.micro}"
+            if (kind := info.releaselevel) == "final":
+                return version
+            return f"{version}{kind[0]}{info.serial}"
+        return extra
 
 
 class TokenRule(Enum):

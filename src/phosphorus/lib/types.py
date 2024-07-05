@@ -1,13 +1,13 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypedDict
+from typing import TYPE_CHECKING, Optional, TypedDict
 
 if TYPE_CHECKING:
     from phosphorus.lib.packages import Package
     from phosphorus.lib.requirements import ResolvedRequirement
     from phosphorus.lib.resolver import LockEntry
 
-Match = str | None
+Match = Optional[str]  # TODO (py3.9): Use |
 
 
 class ResolvedPackageInfo(TypedDict):

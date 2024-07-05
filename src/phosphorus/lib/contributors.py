@@ -1,19 +1,19 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
 
-@dataclass(frozen=True, slots=True, order=True)
+@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
 class Contributor:
     name: str
     email: str
 
     @classmethod
-    def from_data(cls, data: dict[str, str]) -> Self:
+    def from_data(cls, data: dict[str, str]) -> Contributor:  # TODO (py3.10): Use Self
         return cls(name=data.get("name", ""), email=data.get("email", ""))
 
     def formatted_email(self) -> str:

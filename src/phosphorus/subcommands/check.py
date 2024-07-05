@@ -1,6 +1,6 @@
 import sys
-from tomllib import TOMLDecodeError
 
+from phosphorus._seven import TOMLDecodeError
 from phosphorus.subcommands.base import BaseCommand
 
 

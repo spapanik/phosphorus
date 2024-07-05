@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import json
 import os
-import tomllib
 from dataclasses import asdict, dataclass
 from hashlib import sha256
 from importlib.machinery import SourceFileLoader
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Self, cast
+from typing import TYPE_CHECKING, Any, cast
 
+from phosphorus._seven import toml_parser
 from phosphorus.lib.constants import (
     BooleanOperator,
     ComparisonOperator,
@@ -30,19 +30,19 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
 
-@dataclass(frozen=True, slots=True, order=True)
+@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
 class Script:
     command: str
     entrypoint: str
 
 
-@dataclass(frozen=True, slots=True, order=True)
+@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
 class ProjectURL:
     name: str
     url: str
 
 
-@dataclass(frozen=True, slots=True, order=True)
+@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
 class LocalPackage:
     name: str
     path: Path
@@ -50,20 +50,19 @@ class LocalPackage:
 
 class JSONEncoder(json.JSONEncoder):
     def default(self, o: Any) -> Any:
-        match o:
-            case Path():
-                return o.as_posix()
-            case ComparisonOperator():
-                return str(o)
-            case BooleanOperator():
-                return str(o)
-            case MarkerVariable():
-                return str(o)
-            case _:
-                return super().default(o)
+        if isinstance(o, Path):  # TODO (py3.9): Use match
+            return o.as_posix()
+        if isinstance(o, ComparisonOperator):
+            return str(o)
+        if isinstance(o, BooleanOperator):
+            return str(o)
+        if isinstance(o, MarkerVariable):
+            return str(o)
+
+        return super().default(o)
 
 
-@dataclass(frozen=True, slots=True, order=True)
+@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
 class Metadata:
     base_dir: Path
     package: Package
@@ -84,7 +83,7 @@ class Metadata:
     package_paths: tuple[LocalPackage, ...]
 
     @classmethod
-    def from_path(cls, path: Path | None = None) -> Self:
+    def from_path(cls, path: Path | None = None) -> Metadata:  # TODO (py3.10): Use Self
         settings_path = get_pyproject(path)
         settings = get_settings(settings_path)
 
@@ -157,7 +156,7 @@ def get_contributors(settings: list[dict[str, str]]) -> tuple[Contributor, ...]:
 
 def get_settings(settings_path: Path) -> dict[str, Any]:
     with settings_path.open("rb") as settings_file:
-        all_settings = tomllib.load(settings_file)
+        all_settings = toml_parser(settings_file)
     settings = all_settings.get("project", {})
     phosphorus_settings = all_settings.get("tool", {}).get("phosphorus", {})
     settings["dev_dependencies"] = phosphorus_settings.get("dev-dependencies", {})

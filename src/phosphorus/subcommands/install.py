@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import sys
-import tomllib
 from argparse import Namespace
 from subprocess import run
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING
 from warnings import warn
 
+from phosphorus._seven import toml_parser
 from phosphorus.lib.constants import hash_prefix
 from phosphorus.lib.exceptions import ThirdPartyError
 from phosphorus.lib.markers import Marker
@@ -99,7 +99,7 @@ class InstallCommand(BaseCommand):
         }
 
         with self.meta.lockfile.open("rb") as lockfile:
-            lock = tomllib.load(lockfile)
+            lock = toml_parser(lockfile)
 
         target_venv = {}
         for lock_entry in lock["packages"]:

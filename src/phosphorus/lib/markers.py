@@ -3,7 +3,7 @@ from __future__ import annotations
 import ast
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any, Self
+from typing import TYPE_CHECKING, Any
 
 from phosphorus.lib.constants import (
     BooleanOperator,
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)  # TODO (py3.9): Use slots=True
 class MarkerAtom:
     variable: MarkerVariable
     operator: ComparisonOperator
@@ -30,7 +30,7 @@ class MarkerAtom:
         return f"{self.variable} {self.operator} '{self.value}'"
 
     @classmethod
-    def from_dict(cls, specs: dict[str, Any]) -> Self:
+    def from_dict(cls, specs: dict[str, Any]) -> MarkerAtom:  # TODO (py3.10): Use Self
         variable = specs["variable"]
         if isinstance(variable, str):
             variable = MarkerVariable(variable)
@@ -43,44 +43,44 @@ class MarkerAtom:
 
     def evaluate(self, extra: str = "") -> bool:
         environment_value = self.variable.get_env_value(extra)
-        match self.operator, self.variable:
-            case ComparisonOperator.IN, _:
-                return environment_value in self.value
-            case ComparisonOperator.NOT_IN, _:
-                return environment_value in self.value
-            case _, (
-                MarkerVariable.PYTHON_VERSION
-                | MarkerVariable.PYTHON_FULL_VERSION
-                | MarkerVariable.IMPLEMENTATION_VERSION
-                | MarkerVariable.PLATFORM_VERSION
-            ):
-                clause = VersionClause(
-                    operator=self.operator,
-                    identifier=Version.from_string(self.value),
-                )
-                return clause.match(Version.from_string(environment_value))
-            case (
-                ComparisonOperator.COMPATIBLE_WITH | ComparisonOperator.EXACT_MATCH
-            ), _:
-                msg = f"Cannot compare `{self.variable}` with `{self.operator}`"
-                raise ValueError(msg)
-            case ComparisonOperator.EQUAL_TO, _:
-                return environment_value == self.value
-            case ComparisonOperator.NOT_EQUAL, _:
-                return environment_value != self.value
-            case ComparisonOperator.LESS_OR_EQUAL, _:
-                return environment_value <= self.value
-            case ComparisonOperator.GREATER_OR_EQUAL, _:
-                return environment_value >= self.value
-            case ComparisonOperator.LESS_THAN, _:
-                return environment_value < self.value
-            case ComparisonOperator.GREATER_THAN, _:
-                return environment_value > self.value
+        if self.operator == ComparisonOperator.IN:  # TODO (py3.9): Use match
+            return environment_value in self.value
+        if self.operator == ComparisonOperator.NOT_IN:
+            return environment_value in self.value
+        if self.variable in {
+            MarkerVariable.PYTHON_VERSION,
+            MarkerVariable.PYTHON_FULL_VERSION,
+            MarkerVariable.IMPLEMENTATION_VERSION,
+            MarkerVariable.PLATFORM_VERSION,
+        }:
+            clause = VersionClause(
+                operator=self.operator,
+                identifier=Version.from_string(self.value),
+            )
+            return clause.match(Version.from_string(environment_value))
+        if self.operator in {
+            ComparisonOperator.COMPATIBLE_WITH,
+            ComparisonOperator.EXACT_MATCH,
+        }:
+            msg = f"Cannot compare `{self.variable}` with `{self.operator}`"
+            raise ValueError(msg)
+        if self.operator == ComparisonOperator.EQUAL_TO:
+            return environment_value == self.value
+        if self.operator == ComparisonOperator.NOT_EQUAL:
+            return environment_value != self.value
+        if self.operator == ComparisonOperator.LESS_OR_EQUAL:
+            return environment_value <= self.value
+        if self.operator == ComparisonOperator.GREATER_OR_EQUAL:
+            return environment_value >= self.value
+        if self.operator == ComparisonOperator.LESS_THAN:
+            return environment_value < self.value
+        if self.operator == ComparisonOperator.GREATER_THAN:
+            return environment_value > self.value
 
         raise UnreachableCodeError
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)  # TODO (py3.9): Use slots=True
 class Marker:
     boolean: BooleanOperator | None
     markers: tuple[Marker | MarkerAtom, ...]
@@ -103,7 +103,7 @@ class Marker:
         )
 
     @classmethod
-    def from_dict(cls, specs: dict[str, Any]) -> Self:
+    def from_dict(cls, specs: dict[str, Any]) -> Marker:  # TODO (py3.10): Use Self
         boolean = specs.get("boolean")
         if isinstance(boolean, str):
             boolean = BooleanOperator(boolean)
@@ -114,11 +114,10 @@ class Marker:
             variable = marker.get("variable")
             if isinstance(variable, str):
                 variable = MarkerVariable(variable)
-            match variable:
-                case MarkerVariable():
-                    markers.append(MarkerAtom.from_dict(marker))
-                case _:
-                    markers.append(cls.from_dict(marker))
+            if isinstance(variable, MarkerVariable):  # TODO (py3.9): Use match
+                markers.append(MarkerAtom.from_dict(marker))
+            else:
+                markers.append(cls.from_dict(marker))
 
         return cls(boolean=boolean, markers=tuple(markers))
 
@@ -126,16 +125,14 @@ class Marker:
         if not self.markers:
             return True
 
-        match self.boolean:
-            case None:
-                return self.markers[0].evaluate(extra)
-            case BooleanOperator.OR:
-                return any(marker.evaluate(extra) for marker in self.markers)
-            case BooleanOperator.AND:
-                return all(marker.evaluate(extra) for marker in self.markers)
+        if self.boolean == BooleanOperator.OR:  # TODO (py3.9): Use match
+            return any(marker.evaluate(extra) for marker in self.markers)
+        if self.boolean == BooleanOperator.AND:
+            return all(marker.evaluate(extra) for marker in self.markers)
+        return self.markers[0].evaluate(extra)
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)  # TODO (py3.9): Use slots=True
 class Token:
     name: re.Pattern[str]
     text: str

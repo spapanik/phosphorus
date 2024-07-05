@@ -1,11 +1,16 @@
-from collections.abc import Iterator
+from __future__ import annotations
+
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from phosphorus.lib.contributors import Contributor
 from phosphorus.lib.metadata import Metadata
-from phosphorus.lib.zipped_file import ArchiveFile
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
+
+    from phosphorus.lib.zipped_file import ArchiveFile
 
 
 class Builder:

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from tomllib import TOMLDecodeError
 from typing import TYPE_CHECKING, TextIO
 
 from phosphorus.__version__ import __version__
+from phosphorus._seven import TOMLDecodeError
 from phosphorus.lib.resolver import LockEntry, Resolver
 from phosphorus.lib.term import SGRParams, SGRString
 from phosphorus.subcommands.base import BaseCommand

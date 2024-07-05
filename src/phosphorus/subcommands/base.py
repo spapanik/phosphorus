@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import tomllib
 from typing import TYPE_CHECKING, cast
 
+from phosphorus._seven import toml_parser
 from phosphorus.lib.metadata import Metadata
 
 if TYPE_CHECKING:
@@ -21,4 +21,4 @@ class BaseCommand:
 
     def get_current_hash(self) -> str:
         with self.meta.lockfile.open("rb") as file:
-            return cast(str, tomllib.load(file)["$meta"]["hash"])
+            return cast(str, toml_parser(file)["$meta"]["hash"])

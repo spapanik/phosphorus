@@ -5,14 +5,14 @@ from base64 import urlsafe_b64encode
 from dataclasses import dataclass
 from stat import S_ISDIR
 from tarfile import TarInfo
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING
 from zipfile import ZipInfo
 
 if TYPE_CHECKING:
     from pathlib import Path
 
 
-@dataclass(frozen=True, slots=True, order=True)
+@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
 class ArchiveFile:
     absolute_path: Path
     path: Path
@@ -21,7 +21,9 @@ class ArchiveFile:
     mode: int
 
     @classmethod
-    def from_file(cls, source: Path, target: Path) -> Self:
+    def from_file(
+        cls, source: Path, target: Path
+    ) -> ArchiveFile:  # TODO (py3.10): Use Self
         stat = source.stat()
 
         return cls(

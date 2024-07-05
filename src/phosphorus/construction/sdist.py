@@ -1,11 +1,16 @@
+from __future__ import annotations
+
 import tarfile
-from collections.abc import Iterator
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 from phosphorus.construction.base import Builder
 from phosphorus.lib.constants import pyproject_base_name
 from phosphorus.lib.licenses import get_license_files
 from phosphorus.lib.zipped_file import ArchiveFile
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 class SdistBuilder(Builder):

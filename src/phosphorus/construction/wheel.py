@@ -1,8 +1,9 @@
+from __future__ import annotations
+
 import csv
 import shutil
-from collections.abc import Iterator
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from phosphorus.__version__ import __version__
@@ -10,6 +11,9 @@ from phosphorus.construction.base import Builder
 from phosphorus.lib.licenses import get_license_files
 from phosphorus.lib.tags import Tag
 from phosphorus.lib.zipped_file import ArchiveFile
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 class WheelBuilder(Builder):

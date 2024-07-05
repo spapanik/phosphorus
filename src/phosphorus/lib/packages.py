@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from phosphorus.lib.requirements import Requirement
 
 
-@dataclass(frozen=True, slots=True, order=True)
+@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
 class Package:
     name: str
     distribution_name: str = field(repr=False, compare=False)
@@ -143,7 +143,7 @@ class Package:
         return out
 
 
-@dataclass(frozen=True, slots=True, order=True)
+@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
 class ResolvedPackage:
     package: Package
     version: Version

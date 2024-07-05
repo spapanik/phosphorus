@@ -29,9 +29,10 @@ classifiers = [
     "Topic :: Software Development :: Build Tools",
 ]
 
-requires-python = "~=3.11"
+requires-python = "~=3.8"
 dependencies = [
     "uv~=0.2.0",
+    "tomli~=2.0; python_version<'3.11'",
 ]
 
 [project.urls]
@@ -44,9 +45,9 @@ p = "phosphorus.__main__:main"
 
 [tool.phosphorus.dev-dependencies]
 dev = [
-    "ipdb~=0.13",
-    "ipython~=8.21",
-    "pickleshare~=0.7",
+    "ipdb~=0.13; python_version>='3.11'",
+    "ipython~=8.21; python_version>='3.11'",
+    "pickleshare~=0.7; python_version>='3.11'",
     "pipdeptree~=2.13",
 ]
 lint = [
@@ -71,7 +72,7 @@ version = { file = "src/phosphorus/__version__.py" }
 
 [tool.black]
 target-version = [
-    "py311",
+    "py38",
 ]
 
 [tool.mypy]
@@ -97,7 +98,7 @@ warn_unused_configs = true
 src = [
     "src",
 ]
-target-version = "py311"
+target-version = "py38"
 
 [tool.ruff.lint]
 select = [

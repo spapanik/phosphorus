@@ -15,35 +15,41 @@ if TYPE_CHECKING:
 @dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
 class ArchiveFile:
     absolute_path: Path
-    path: Path
+    base_dir: Path
     digest: str
     size: int
     mode: int
 
     @classmethod
     def from_file(
-        cls, source: Path, target: Path
+        cls, source: Path, base_dir: Path
     ) -> ArchiveFile:  # TODO (py3.10): Use Self
         stat = source.stat()
 
         return cls(
             absolute_path=source,
-            path=target,
+            base_dir=base_dir,
             digest=cls.hash_file(source),
             size=stat.st_size,
             mode=stat.st_mode,
         )
 
     @property
+    def relative_path(self) -> Path:
+        return self.absolute_path.relative_to(self.base_dir)
+
+    @property
     def zip_info(self) -> ZipInfo:
+        path = self.relative_path
         date_time = (1980, 1, 1, 0, 0, 0)
-        zip_info = ZipInfo(self.path.as_posix(), date_time=date_time)
+        zip_info = ZipInfo(path.as_posix(), date_time=date_time)
         zip_info.external_attr = self.normalised_mode()
         return zip_info
 
     @property
     def tar_info(self) -> TarInfo:
-        tarinfo = TarInfo(self.path.as_posix())
+        path = self.relative_path
+        tarinfo = TarInfo(path.as_posix())
         tarinfo.mtime = 0
         tarinfo.uid = 0
         tarinfo.gid = 0

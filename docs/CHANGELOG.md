@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 ### Fixed
 
 -   Fixed python 3.8 compatibility issues with missing BooleanOptionalAction
+-   Fixed packages with different names than the project name
 
 ## [0.2.0] - 2024-07-08
 

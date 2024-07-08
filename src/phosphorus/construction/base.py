@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from itertools import chain
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Any
@@ -8,7 +9,7 @@ from phosphorus.lib.contributors import Contributor
 from phosphorus.lib.metadata import Metadata
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterable, Iterator
 
     from phosphorus.lib.zipped_file import ArchiveFile
 
@@ -31,7 +32,9 @@ class Builder:
 
         with TemporaryDirectory() as temp_dir_name:
             temp_dir = Path(temp_dir_name).resolve()
-            files = self.collect_files(temp_dir)
+            files = chain(
+                self.package_files(temp_dir), self.non_package_files(temp_dir)
+            )
             self.write_files(files, package, temp_dir)
 
         return package
@@ -40,11 +43,17 @@ class Builder:
     def filename(self) -> str:
         raise NotImplementedError
 
-    def collect_files(self, temp_dir: Path) -> list[ArchiveFile]:
+    def package_files(self, temp_dir: Path) -> Iterator[ArchiveFile]:
+        raise NotImplementedError
+
+    def non_package_files(self, temp_dir: Path) -> Iterator[ArchiveFile]:
+        raise NotImplementedError
+
+    def get_info_file(self, temp_dir: Path, data: Any) -> ArchiveFile:
         raise NotImplementedError
 
     def write_files(
-        self, files: list[ArchiveFile], package: Path, temp_dir: Path
+        self, files: Iterable[ArchiveFile], package: Path, temp_dir: Path
     ) -> None:
         raise NotImplementedError
 
@@ -52,10 +61,6 @@ class Builder:
     def base_name(self) -> str:
         package_name = self.meta.package.distribution_name
         return f"{package_name}-{self.meta.version}"
-
-    @property
-    def record_target(self) -> Path | None:
-        return None
 
     def get_metadata_content(self) -> Iterator[str]:
         yield "Metadata-Version: 2.3"

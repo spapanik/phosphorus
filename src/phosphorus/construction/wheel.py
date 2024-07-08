@@ -13,7 +13,7 @@ from phosphorus.lib.tags import Tag
 from phosphorus.lib.zipped_file import ArchiveFile
 
 if TYPE_CHECKING:
-    from collections.abc import Iterator
+    from collections.abc import Iterable, Iterator
 
 
 class WheelBuilder(Builder):
@@ -47,31 +47,35 @@ class WheelBuilder(Builder):
     def wheel_filenames(self) -> dict[Tag, str]:
         return {tag: f"{self.base_name}-{tag}.whl" for tag in self.meta.tags}
 
-    def collect_files(self, temp_dir: Path) -> list[ArchiveFile]:
-        output = []
+    def package_files(self, temp_dir: Path) -> Iterator[ArchiveFile]:
         if self.editable:
             file = self.create_pth(temp_dir)
-            output.append(
-                ArchiveFile.from_file(source=file, target=file.relative_to(temp_dir))
-            )
-        else:
-            for package in self.meta.package_paths:
-                output.extend(
-                    ArchiveFile.from_file(
-                        source=file, target=file.relative_to(package.path)
+            yield ArchiveFile.from_file(source=file, base_dir=temp_dir)
+            return
+
+        for package in self.meta.package_paths:
+            for file in package.absolute_path.rglob("*"):
+                if file.is_file():
+                    yield ArchiveFile.from_file(
+                        source=file, base_dir=package.absolute_path
                     )
-                    for file in package.path.glob("**/*")
-                    if file.is_file()
-                )
-        output.extend(
-            ArchiveFile.from_file(source=file, target=file.relative_to(temp_dir))
-            for file in self.prepare_metadata(temp_dir).glob("**/*")
-            if file.is_file()
-        )
-        return output
+
+    def non_package_files(self, temp_dir: Path) -> Iterator[ArchiveFile]:
+        for file in self.prepare_metadata(temp_dir).rglob("*"):
+            if file.is_file():
+                yield ArchiveFile.from_file(source=file, base_dir=temp_dir)
+
+    def get_info_file(self, temp_dir: Path, data: list[list[Any]]) -> ArchiveFile:
+        info_file = temp_dir.joinpath(self.dist_info, "RECORD")
+        with info_file.open("w") as csv_file:
+            write = csv.writer(csv_file)
+            write.writerows(data)
+            write.writerow([info_file.relative_to(temp_dir), "", ""])
+
+        return ArchiveFile.from_file(source=info_file, base_dir=temp_dir)
 
     def write_files(
-        self, files: list[ArchiveFile], package: Path, temp_dir: Path
+        self, files: Iterable[ArchiveFile], package: Path, temp_dir: Path
     ) -> None:
         with ZipFile(package, mode="w", compression=ZIP_DEFLATED) as zip_file:
             rows = []
@@ -81,20 +85,14 @@ class WheelBuilder(Builder):
                     archive_file.absolute_path.read_bytes(),
                     compress_type=ZIP_DEFLATED,
                 )
-                rows.append([archive_file.path, archive_file.digest, archive_file.size])
+                rows.append(
+                    [archive_file.relative_path, archive_file.digest, archive_file.size]
+                )
 
-            record = temp_dir.joinpath("RECORD")
-            rows.append([self.record_target, "", ""])
-            with record.open("w") as csv_file:
-                write = csv.writer(csv_file)
-                write.writerows(rows)
-
-            record_info = ArchiveFile.from_file(
-                source=record, target=self.record_target
-            )
+            record_info = self.get_info_file(temp_dir, rows)
             zip_file.writestr(
                 record_info.zip_info,
-                record.read_bytes(),
+                record_info.absolute_path.read_bytes(),
                 compress_type=ZIP_DEFLATED,
             )
 
@@ -106,7 +104,9 @@ class WheelBuilder(Builder):
         return all(tag.abi is None for tag in self.meta.tags)
 
     def create_pth(self, tmp_dir: Path) -> Path:
-        paths = {package.path.as_posix() for package in self.meta.package_paths}
+        paths = {
+            package.absolute_path.as_posix() for package in self.meta.package_paths
+        }
         pth = tmp_dir.joinpath(f"{self.meta.package.name}.pth")
         pth.write_text("\n".join(sorted(paths)))
         return pth

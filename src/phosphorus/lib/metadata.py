@@ -44,8 +44,12 @@ class ProjectURL:
 
 @dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
 class LocalPackage:
-    name: str
+    base_dir: Path
     path: Path
+
+    @property
+    def absolute_path(self) -> Path:
+        return self.base_dir.joinpath(self.path)
 
 
 class JSONEncoder(json.JSONEncoder):
@@ -161,6 +165,7 @@ def get_settings(settings_path: Path) -> dict[str, Any]:
     phosphorus_settings = all_settings.get("tool", {}).get("phosphorus", {})
     settings["dev_dependencies"] = phosphorus_settings.get("dev-dependencies", {})
     settings["dynamic_definitions"] = phosphorus_settings.get("dynamic", {})
+    settings["included_packages"] = phosphorus_settings.get("packages", {})
     return cast(dict[str, Any], settings)
 
 
@@ -210,17 +215,13 @@ def get_requirements(
 def get_package_paths(
     settings: dict[str, Any], base_dir: Path
 ) -> tuple[LocalPackage, ...]:
-    name = settings["name"]
-    include = settings.get("include", [])
-    output: dict[str, Path] = {}
-    src_package = base_dir.joinpath("src").joinpath(name)
-    base_package = base_dir.joinpath(name)
-    if src_package.exists():
-        output[name] = base_dir.joinpath("src")
-    elif base_package.exists():
-        output[name] = base_dir
-    for package_info in include:
-        output[package_info["name"]] = base_dir.joinpath(package_info["in"])
+    package_key = "included_packages"
+    if packages := settings.get(package_key, []):
+        output = packages
+    elif base_dir.joinpath("src").exists():
+        output = ["src"]
+    else:
+        raise ImproperlyConfiguredProjectError(package_key)
     return keep_unique(
-        LocalPackage(name=name, path=path) for name, path in output.items()
+        LocalPackage(path=Path(path), base_dir=base_dir) for path in output
     )

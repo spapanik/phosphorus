@@ -1,15 +1,38 @@
+from __future__ import annotations
+
 import sys
-from argparse import ArgumentParser, BooleanOptionalAction, Namespace
+from argparse import ArgumentParser, Namespace
 
 from phosphorus.__version__ import __version__
 
 sys.tracebacklimit = 0
 
 
-def add_build_args(parser: ArgumentParser) -> None:
-    parser.add_argument("--metadata", action=BooleanOptionalAction, default=False)
-    parser.add_argument("--sdist", action=BooleanOptionalAction, default=True)
-    parser.add_argument("--wheel", action=BooleanOptionalAction, default=True)
+def add_boolean_optional_action(
+    parser: ArgumentParser,
+    var: str,
+    help_text: str = "",
+    *,
+    required: bool = False,
+    default: bool | None = None,
+) -> None:  # TODO (py3.8): Use BooleanOptionalAction
+    dest = var.replace("-", "_")
+    parser.add_argument(
+        f"--{var}",
+        action="store_true",
+        dest=dest,
+        default=default,
+        help=help_text,
+        required=required,
+    )
+    parser.add_argument(
+        f"--no-{var}",
+        action="store_false",
+        dest=dest,
+        default=default,
+        help=help_text,
+        required=required,
+    )
 
 
 def parse_args() -> Namespace:
@@ -40,17 +63,17 @@ def parse_args() -> Namespace:
         parents=[parent_parser],
         help="build the wheel and the sdist distributions for the package",
     )
-    build_parser.add_argument(
-        "--sdist",
-        action=BooleanOptionalAction,
+    add_boolean_optional_action(
+        build_parser,
+        "sdist",
         default=True,
-        help="build the sdist distribution",
+        help_text="build the sdist distribution",
     )
-    build_parser.add_argument(
-        "--wheel",
-        action=BooleanOptionalAction,
+    add_boolean_optional_action(
+        build_parser,
+        "wheel",
         default=True,
-        help="build the wheel distribution",
+        help_text="build the wheel distribution",
     )
 
     subparsers.add_parser(
@@ -60,11 +83,11 @@ def parse_args() -> Namespace:
     install_parser = subparsers.add_parser(
         "install", parents=[parent_parser], help="install the project dependencies"
     )
-    install_parser.add_argument(
-        "--sync",
-        action=BooleanOptionalAction,
+    add_boolean_optional_action(
+        install_parser,
+        "sync",
         default=False,
-        help="sync the dependencies, by removing the ones that are not in the lock file",
+        help_text="sync the dependencies, by removing the ones that are not in the lock file",
     )
     dependency_groups = install_parser.add_mutually_exclusive_group()
     dependency_groups.add_argument(
@@ -88,23 +111,23 @@ def parse_args() -> Namespace:
     lock_parser.add_argument(
         "-f", "--force", action="store_true", help="force recreating the lock"
     )
-    lock_parser.add_argument(
-        "--enforce-pep440",
-        action=BooleanOptionalAction,
+    add_boolean_optional_action(
+        lock_parser,
+        "enforce-pep440",
         default=True,
-        help="enforce PEP 440",
+        help_text="enforce PEP 440",
     )
-    lock_parser.add_argument(
-        "--allow-pre-releases",
-        action=BooleanOptionalAction,
+    add_boolean_optional_action(
+        lock_parser,
+        "allow-pre-releases",
         default=False,
-        help="allow pre-releases",
+        help_text="allow pre-releases",
     )
-    lock_parser.add_argument(
-        "--allow-dev-releases",
-        action=BooleanOptionalAction,
+    add_boolean_optional_action(
+        lock_parser,
+        "allow-dev-releases",
         default=False,
-        help="allow dev releases",
+        help_text="allow dev releases",
     )
 
     args = parser.parse_args()

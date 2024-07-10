@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 ### Fixed
 
 -   Fixed missing uv command
+-   Fixed message when there are no packages to remove or update
 
 ## [0.2.1] - 2024-07-09
 

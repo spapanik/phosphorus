@@ -58,11 +58,17 @@ class InstallCommand(BaseCommand):
 
         package_diff = self.get_package_diff()
 
-        print("📦 Installing packages...")
+        if package_diff["update"]:
+            print("📦 Installing packages...")
+        else:
+            print("📦 No packages to be updated, skipping...")
         for old_package, lock_entry in package_diff["update"]:
             self.install_package(old_package, lock_entry)
         if self.sync:
-            print("🧹 Removing packages...")
+            if package_diff["remove"]:
+                print("🧹 Removing packages...")
+            else:
+                print("🧹 No packages to be removed, skipping...")
             for old_package in package_diff["remove"]:
                 self.remove_package(old_package)
         self.install_self()

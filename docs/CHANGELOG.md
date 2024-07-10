@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+### Fixed
+
+-   Fixed missing uv command
+
 ## [0.2.1] - 2024-07-09
 
 ### Fixed

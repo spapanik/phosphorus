@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from subprocess import run
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING
 
@@ -9,6 +8,7 @@ from phosphorus.lib.constants import hash_prefix
 from phosphorus.lib.exceptions import ThirdPartyError
 from phosphorus.lib.packages import Package
 from phosphorus.lib.requirements import ResolvedRequirement
+from phosphorus.lib.uv_runner import uv_run
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -60,16 +60,7 @@ class Resolver:
                 for requirement in group.requirements:
                     tmp.write(f"{requirement}\n")
             tmp.seek(0)
-            output = run(  # noqa: PLW1510, S603
-                [  # noqa: S607
-                    "uv",
-                    "pip",
-                    "compile",
-                    "--generate-hashes",
-                    tmp.name,
-                ],
-                capture_output=True,
-            )
+            output = uv_run(["pip", "compile", "--generate-hashes", tmp.name])
             if output.returncode:
                 command = "uv pip compile"
                 raise ThirdPartyError(command)

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import sys
 from argparse import Namespace
-from subprocess import run
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING
 from warnings import warn
@@ -15,6 +14,7 @@ from phosphorus.lib.packages import Package
 from phosphorus.lib.requirements import ResolvedRequirement
 from phosphorus.lib.resolver import LockEntry
 from phosphorus.lib.term import SGRParams, SGRString
+from phosphorus.lib.uv_runner import uv_run
 from phosphorus.lib.versions import Version
 from phosphorus.subcommands.base import BaseCommand
 from phosphorus.subcommands.lock import LockCommand
@@ -83,15 +83,7 @@ class InstallCommand(BaseCommand):
     def get_package_diff(self) -> PackageDiff:
         print("🔎 Looking for packages to install/remove/upgrade...")
 
-        output = run(  # noqa: PLW1510, S603
-            [  # noqa: S607
-                "uv",
-                "pip",
-                "freeze",
-                "--exclude-editable",
-            ],
-            capture_output=True,
-        )
+        output = uv_run(["pip", "freeze", "--exclude-editable"])
         existing_venv = {
             resolved_requirement.package: resolved_requirement
             for requirement in output.stdout.decode().splitlines()
@@ -163,17 +155,8 @@ class InstallCommand(BaseCommand):
             line = f"{package}=={new_version} {hashes}"
             tmp.write(f"{line}\n")
             tmp.seek(0)
-            output = run(  # noqa: PLW1510, S603
-                [  # noqa: S607
-                    "uv",
-                    "pip",
-                    "install",
-                    "--no-deps",
-                    "--require-hashes",
-                    "-r",
-                    tmp.name,
-                ],
-                capture_output=True,
+            output = uv_run(
+                ["pip", "install", "--no-deps", "--require-hashes", "-r", tmp.name]
             )
             if output.returncode == 0:
                 print("🗸")
@@ -190,15 +173,7 @@ class InstallCommand(BaseCommand):
             f"({SGRString(str(version), params=[SGRParams.BLUE_BRIGHT])})...",
             end=" ",
         )
-        output = run(  # noqa: PLW1510, S603
-            [  # noqa: S607
-                "uv",
-                "pip",
-                "uninstall",
-                package.name,
-            ],
-            capture_output=True,
-        )
+        output = uv_run(["pip", "uninstall", package.name])
         if output.returncode == 0:
             print("🗸")
         else:
@@ -212,17 +187,7 @@ class InstallCommand(BaseCommand):
             f"({SGRString(str(self.meta.version), params=[SGRParams.BLUE_BRIGHT])})...",
             end=" ",
         )
-        output = run(  # noqa: PLW1510, S603
-            [  # noqa: S607
-                "uv",
-                "pip",
-                "install",
-                "--no-deps",
-                "--editable",
-                ".",
-            ],
-            capture_output=True,
-        )
+        output = uv_run(["pip", "install", "--no-deps", "--editable", "."])
         if output.returncode == 0:
             print("🗸")
         else:

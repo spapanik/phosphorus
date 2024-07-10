@@ -168,7 +168,7 @@ def get_settings(settings_path: Path) -> dict[str, Any]:
     settings["dev_dependencies"] = phosphorus_settings.get("dev-dependencies", {})
     settings["dynamic_definitions"] = phosphorus_settings.get("dynamic", {})
     settings["included_packages"] = phosphorus_settings.get("packages", {})
-    return cast(dict[str, Any], settings)
+    return cast("dict[str, Any]", settings)  # TODO (py3.9): Use dict[str, Any]
 
 
 def get_package(settings: dict[str, Any]) -> Package:

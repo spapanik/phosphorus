@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+### Added
+
+-   Added validation for trove classifiers
+
 ### Fixed
 
 -   Fixed missing uv command

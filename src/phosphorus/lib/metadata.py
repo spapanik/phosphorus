@@ -8,6 +8,8 @@ from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
+from trove_classifiers import classifiers
+
 from phosphorus._seven import toml_parser
 from phosphorus.lib.constants import (
     BooleanOperator,
@@ -109,7 +111,7 @@ class Metadata:
             python=keep_unique(
                 VersionClause.from_string(clause) for clause in python.split(",")
             ),
-            classifiers=keep_unique(settings.get("classifiers", [])),
+            classifiers=get_classifiers(settings.get("classifiers", [])),
             requirement_groups=get_requirements(
                 settings.get("dependencies", []), settings.get("dev_dependencies", {})
             ),
@@ -193,6 +195,14 @@ def get_license(settings: dict[str, Any]) -> str:
     if license_text := license_info.get("text", ""):
         return cast(str, license_text)
     return ""
+
+
+def get_classifiers(user_classifiers: list[str]) -> tuple[str, ...]:
+    unique_classifiers = keep_unique(user_classifiers)
+    if any(classifier not in classifiers for classifier in unique_classifiers):
+        classifier_key = "classifiers"
+        raise ImproperlyConfiguredProjectError(classifier_key)
+    return unique_classifiers
 
 
 def get_requirements(

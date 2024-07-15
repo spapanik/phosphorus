@@ -35,17 +35,17 @@ jobs:
       - name: Use cache
         uses: actions/cache@v4
         with:
-          path: ~/.cache/venv-${{ matrix.python-version }}
-          key: ${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('pyproject.toml') }}
+          path: ~/.cache/venv-${{ matrix.python-version }}-lint
+          key: ${{ runner.os }}-${{ matrix.python-version }}-lint-${{ hashFiles('pyproject.toml') }}
       - name: Install dependencies
         run: |
-          python -m venv ~/.cache/venv-${{ matrix.python-version }}
-          . ~/.cache/venv-${{ matrix.python-version }}/bin/activate
-          yam install
+          python -m venv ~/.cache/venv-${{ matrix.python-version }}-lint
+          . ~/.cache/venv-${{ matrix.python-version }}-lint/bin/activate
+          yam install -g main -g lint -g test
       - name: Lint the project
         run: |
-          . ~/.cache/venv-${{ matrix.python-version }}/bin/activate
-          yam lint
+          . ~/.cache/venv-${{ matrix.python-version }}-lint/bin/activate
+          yam -e lint
   run-unittests:
     runs-on: ubuntu-latest
     strategy:
@@ -74,14 +74,14 @@ jobs:
       - name: Use cache
         uses: actions/cache@v4
         with:
-          path: ~/.cache/venv-${{ matrix.python-version }}
-          key: ${{ runner.os }}-${{ matrix.python-version }}-venv-${{ hashFiles('pyproject.toml') }}
+          path: ~/.cache/venv-${{ matrix.python-version }}-test
+          key: ${{ runner.os }}-${{ matrix.python-version }}-test-${{ hashFiles('pyproject.toml') }}
       - name: Install dependencies
         run: |
-          python -m venv ~/.cache/venv-${{ matrix.python-version }}
-          . ~/.cache/venv-${{ matrix.python-version }}/bin/activate
-          yam install
+          python -m venv ~/.cache/venv-${{ matrix.python-version }}-test
+          . ~/.cache/venv-${{ matrix.python-version }}-test/bin/activate
+          yam install -g main -g test
       - name: Test the project
         run: |
-          . ~/.cache/venv-${{ matrix.python-version }}/bin/activate
-          yam tests
+          . ~/.cache/venv-${{ matrix.python-version }}-test/bin/activate
+          yam -e tests

@@ -10,7 +10,7 @@ install:
   requires:
     - p-lock.toml
   commands:
-    - p install ${p_sync} ${p_extra}
+    - p install ${p_sync} ${.extra}
 
 format:
   phony: true

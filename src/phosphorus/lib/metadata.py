@@ -61,6 +61,8 @@ class JSONEncoder(json.JSONEncoder):
 
     def default(self, o: Any) -> Any:
         if isinstance(o, Path):  # TODO (py3.9): Use match
+            if o == Path(os.devnull):
+                return os.devnull
             if o.is_absolute():
                 return o.relative_to(self.base_dir).as_posix()
             return o.as_posix()

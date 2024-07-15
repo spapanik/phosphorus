@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+### Fixed
+
+-   Fixed hash when readme is missing
+
 ## [0.4.0] - 2024-07-15
 
 ### Changed

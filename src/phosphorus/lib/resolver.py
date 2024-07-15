@@ -33,7 +33,6 @@ class Resolver:
         "allow_dev_releases",
         "packages",
         "resolved_packages",
-        "zoo",
     )
 
     def __init__(
@@ -67,7 +66,6 @@ class Resolver:
                 raise ThirdPartyError(command)
             print("✅ Done!")
 
-        self.zoo = output.stdout.decode()
         for raw_package_info in self.split_resolution(output.stdout.decode()):
             self.preprocess(raw_package_info)
 

@@ -55,8 +55,14 @@ class LocalPackage:
 
 
 class JSONEncoder(json.JSONEncoder):
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.base_dir = kwargs.pop("base_dir")
+        super().__init__(*args, **kwargs)
+
     def default(self, o: Any) -> Any:
         if isinstance(o, Path):  # TODO (py3.9): Use match
+            if o.is_absolute():
+                return o.relative_to(self.base_dir).as_posix()
             return o.as_posix()
         if isinstance(o, ComparisonOperator):
             return str(o)
@@ -137,7 +143,9 @@ class Metadata:
 
     @property
     def p_hash(self) -> str:
-        json_dump = json.dumps(asdict(self), cls=JSONEncoder, sort_keys=True)
+        json_dump = json.dumps(
+            asdict(self), cls=JSONEncoder, base_dir=self.base_dir, sort_keys=True
+        )
         return sha256(json_dump.encode("utf-8")).hexdigest()
 
 

@@ -13,6 +13,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 ### Fixed
 
 -   Fixed python 3.8 compatibility issues
+-   Fixed hashes, as they need to be independent of the installation path
 
 ## [0.3.0] - 2024-07-10
 

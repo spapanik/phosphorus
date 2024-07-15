@@ -1,6 +1,6 @@
 [build-system]
 requires = [
-    "phosphorus>=0.3",
+    "phosphorus>=0.4",
 ]
 build-backend = "phosphorus.construction.api"
 
@@ -47,17 +47,15 @@ p = "phosphorus.__main__:main"
 [tool.phosphorus.dev-dependencies]
 dev = [
     "ipdb~=0.13; python_version>='3.11'",
-    "ipython~=8.21; python_version>='3.11'",
-    "pickleshare~=0.7; python_version>='3.11'",
-    "pipdeptree~=2.13",
+    "ipython~=8.26; python_version>='3.11'",
 ]
 lint = [
-    "black~=24.1",
-    "mypy~=1.8",
+    "black~=24.4",
+    "mypy~=1.10",
     "ruff~=0.5",
 ]
 test = [
-    "pytest~=8.0",
+    "pytest~=8.2",
     "pytest-cov~=5.0",
 ]
 docs = [

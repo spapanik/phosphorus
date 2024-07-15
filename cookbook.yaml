@@ -1,6 +1,6 @@
 $globals:
   shell: bash
-  version: "6.0"
+  version: "7.0"
   vars:
     p_sync: --sync
 

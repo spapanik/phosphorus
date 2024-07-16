@@ -77,10 +77,9 @@ class InstallCommand(BaseCommand):
         all_groups = {group.group for group in self.meta.requirement_groups}
         if included:
             if not included.issubset(all_groups):
-                included &= all_groups
-                msg = f"Unknown group(s) {included}, ignoring..."
+                msg = f"Unknown group(s) {included - all_groups}, ignoring..."
                 warn(msg, RuntimeWarning, stacklevel=3)
-            return included
+            return included & all_groups
         if not excluded.issubset(all_groups):
             msg = f"Unknown group(s) {excluded - all_groups}, ignoring..."
             warn(msg, RuntimeWarning, stacklevel=3)

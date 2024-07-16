@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+### Fixed
+
+-   Fixed reporting of unknown groups
+
 ## [0.4.1] - 2024-07-16
 
 ### Fixed

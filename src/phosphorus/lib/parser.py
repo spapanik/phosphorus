@@ -76,8 +76,20 @@ def parse_args() -> Namespace:
         help_text="build the wheel distribution",
     )
 
-    subparsers.add_parser(
+    check_parser = subparsers.add_parser(
         "check", parents=[parent_parser], help="check that the lock file is up to date"
+    )
+    add_boolean_optional_action(
+        check_parser,
+        "lockfile",
+        default=False,
+        help_text="check if the lock file is up to date",
+    )
+    add_boolean_optional_action(
+        check_parser,
+        "outdated",
+        default=False,
+        help_text="check if the dependencies are outdated",
     )
 
     install_parser = subparsers.add_parser(

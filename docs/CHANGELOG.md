@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+### Added
+
+-   Added a check for outdated packages
+
 ### Fixed
 
 -   Fixed reporting of unknown groups

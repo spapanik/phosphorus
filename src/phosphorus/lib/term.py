@@ -41,7 +41,9 @@ class SGRString(str):
     _sgr: str
     __slots__ = ("_sgr",)
 
-    def __new__(cls, value: str, *, params: Iterable[SGRParams]) -> SGRString:
+    def __new__(  # noqa: PYI034
+        cls, value: str, *, params: Iterable[SGRParams]
+    ) -> SGRString:
         string = super().__new__(cls, value)
         prefix = "".join(param.sequence for param in params)
         suffix = SGRParams.DEFAULT.sequence

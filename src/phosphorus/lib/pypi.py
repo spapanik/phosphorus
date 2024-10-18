@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from http import HTTPStatus
 from threading import Thread
 from typing import TYPE_CHECKING
 from urllib.error import HTTPError
@@ -58,7 +59,7 @@ def _get_version_info(
     try:
         pypi_info = _get_info_from_pypi(package, version, etag)
     except HTTPError as exc:
-        if exc.status == 304:
+        if exc.status == HTTPStatus.NOT_MODIFIED:
             local_cache.touch()
             results[key] = local_info
             return

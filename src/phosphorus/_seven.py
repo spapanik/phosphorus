@@ -5,7 +5,7 @@ import sys
 MINOR = sys.version_info.minor
 
 
-if MINOR >= 9:
+if MINOR >= 9:  # noqa: PLR2004
     remove_prefix = str.removeprefix
 else:
 
@@ -15,7 +15,7 @@ else:
         return s
 
 
-if MINOR >= 11:
+if MINOR >= 11:  # noqa: PLR2004
     import tomllib
 
     toml_parser = tomllib.load

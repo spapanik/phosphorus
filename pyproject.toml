@@ -31,7 +31,7 @@ classifiers = [
     "Topic :: Software Development :: Build Tools",
 ]
 
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 dependencies = [
     "uv~=0.4.0",
     "tomli~=2.0; python_version<'3.11'",
@@ -73,7 +73,7 @@ version = { file = "src/phosphorus/__version__.py" }
 
 [tool.black]
 target-version = [
-    "py38",
+    "py39",
 ]
 
 [tool.mypy]
@@ -99,7 +99,7 @@ warn_unused_configs = true
 src = [
     "src",
 ]
-target-version = "py38"
+target-version = "py39"
 
 [tool.ruff.lint]
 select = [

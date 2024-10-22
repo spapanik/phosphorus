@@ -60,7 +60,9 @@ class Resolver:
                 for requirement in group.requirements:
                     tmp.write(f"{requirement}\n")
             tmp.seek(0)
-            output = uv_run(["pip", "compile", "--generate-hashes", tmp.name])
+            output = uv_run(
+                ["pip", "compile", "--generate-hashes", "--universal", tmp.name]
+            )
             if output.returncode:
                 command = "uv pip compile"
                 raise ThirdPartyError(command)

@@ -10,9 +10,10 @@ if TYPE_CHECKING:
 
 
 class BaseCommand:
-    __slots__ = ("meta",)
+    __slots__ = ("meta", "verbosity")
 
     def __init__(self, _args: Namespace, /) -> None:
+        self.verbosity = _args.verbosity
         self.meta = Metadata.from_path()
 
     def run(self) -> None:

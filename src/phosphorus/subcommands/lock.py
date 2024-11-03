@@ -57,6 +57,7 @@ class LockCommand(BaseCommand):
             enforce_pep440=self.enforce_pep440,
             allow_pre_releases=self.allow_pre_releases,
             allow_dev_releases=self.allow_dev_releases,
+            verbosity=self.verbosity,
         ).resolve()
 
     def write_lockfile(self, dependencies: list[LockEntry]) -> None:

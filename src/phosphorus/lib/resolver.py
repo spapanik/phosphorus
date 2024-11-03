@@ -33,12 +33,14 @@ class Resolver:
         "allow_dev_releases",
         "packages",
         "resolved_packages",
+        "verbosity",
     )
 
     def __init__(
         self,
         requirement_groups: tuple[RequirementGroup, ...],
         *,
+        verbosity: int,
         enforce_pep440: bool,
         allow_pre_releases: bool,
         allow_dev_releases: bool,
@@ -47,6 +49,7 @@ class Resolver:
         self.enforce_pep440 = enforce_pep440
         self.allow_pre_releases = allow_pre_releases
         self.allow_dev_releases = allow_dev_releases
+        self.verbosity = verbosity
         self.packages = {
             requirement.package: requirement_group.group
             for requirement_group in self.requirement_groups
@@ -64,6 +67,8 @@ class Resolver:
                 ["pip", "compile", "--generate-hashes", "--universal", tmp.name]
             )
             if output.returncode:
+                if self.verbosity:
+                    print(output.stderr.decode())
                 command = "uv pip compile"
                 raise ThirdPartyError(command)
             print("✅ Done!")

@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+## [0.6.0] - 2024-11-03
+
 ### Changed
 
 -   Dropped support for python 3.8
@@ -88,7 +90,8 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
-[Unreleased]: https://github.com/spapanik/phosphorus/compare/v0.5.0...main
+[Unreleased]: https://github.com/spapanik/phosphorus/compare/v0.6.0...main
+[0.6.0]: https://github.com/spapanik/phosphorus/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/spapanik/phosphorus/compare/v0.4.1...v0.5.0
 [0.4.1]: https://github.com/spapanik/phosphorus/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/spapanik/phosphorus/compare/v0.3.0...v0.4.0

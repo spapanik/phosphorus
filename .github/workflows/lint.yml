@@ -1,4 +1,4 @@
-name: tests
+name: lint
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
       - main
 
 jobs:
-  unittest-python:
+  lint-python:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -33,14 +33,14 @@ jobs:
       - name: Use cache
         uses: actions/cache@v4
         with:
-          path: ~/.cache/venv-${{ matrix.python-version }}-test
-          key: ${{ runner.os }}-${{ matrix.python-version }}-test-${{ hashFiles('pyproject.toml') }}
+          path: ~/.cache/venv-${{ matrix.python-version }}-lint
+          key: ${{ runner.os }}-${{ matrix.python-version }}-lint-${{ hashFiles('pyproject.toml') }}
       - name: Install dependencies
         run: |
-          python -m venv ~/.cache/venv-${{ matrix.python-version }}-test
-          . ~/.cache/venv-${{ matrix.python-version }}-test/bin/activate
-          yam install -g main -g test
-      - name: Test the project
+          python -m venv ~/.cache/venv-${{ matrix.python-version }}-lint
+          . ~/.cache/venv-${{ matrix.python-version }}-lint/bin/activate
+          yam install -g main -g lint -g test
+      - name: Lint the project
         run: |
-          . ~/.cache/venv-${{ matrix.python-version }}-test/bin/activate
-          yam -e tests
+          . ~/.cache/venv-${{ matrix.python-version }}-lint/bin/activate
+          yam -e lint

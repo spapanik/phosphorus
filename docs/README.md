@@ -1,5 +1,6 @@
 # phosphorus: A dependency management and packaging tool
 
+[![lint][lint_badge]][lint_url]
 [![tests][test_badge]][test_url]
 [![license][licence_badge]][licence_url]
 [![pypi][pypi_badge]][pypi_url]
@@ -17,6 +18,8 @@ external dependencies, although some common packaging tools are required.
 -   [Documentation]
 -   [Changelog]
 
+[lint_badge]: https://github.com/spapanik/phosphorus/actions/workflows/lint.yml/badge.svg
+[lint_url]: https://github.com/spapanik/phosphorus/actions/workflows/lint.yml
 [test_badge]: https://github.com/spapanik/phosphorus/actions/workflows/tests.yml/badge.svg
 [test_url]: https://github.com/spapanik/phosphorus/actions/workflows/tests.yml
 [licence_badge]: https://img.shields.io/pypi/l/phosphorus

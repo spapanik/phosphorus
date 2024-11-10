@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+### Fixed
+
+-   Fixed macOS tmpdir error
+
 ## [0.6.0] - 2024-11-03
 
 ### Changed

@@ -110,7 +110,7 @@ class Resolver:
             for line in raw_package_info
             if line.startswith("#")
             and (stripped := remove_prefix(line, "# via").lstrip(" #"))
-            and not stripped.startswith("-r /tmp")
+            and not stripped.startswith("-r")
         }
 
         self.resolved_packages[requirement.package] = {

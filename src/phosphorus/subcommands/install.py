@@ -120,9 +120,7 @@ class InstallCommand(BaseCommand):
         update: set[tuple[ResolvedRequirement | None, LockEntry]] = set()
         remove = set()
 
-        for package in (
-            existing_venv.keys() | target_venv.keys()
-        ):  # TODO (py3.9): Remove .keys()
+        for package in existing_venv | target_venv:
             if package not in target_venv:
                 remove.add(existing_venv[package])
             elif package not in existing_venv:

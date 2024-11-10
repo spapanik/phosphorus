@@ -4,7 +4,6 @@ from dataclasses import dataclass
 from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING
 
-from phosphorus._seven import remove_prefix
 from phosphorus.lib.constants import hash_prefix
 from phosphorus.lib.exceptions import ThirdPartyError
 from phosphorus.lib.packages import Package
@@ -109,7 +108,7 @@ class Resolver:
             Package(name=stripped)
             for line in raw_package_info
             if line.startswith("#")
-            and (stripped := remove_prefix(line, "# via").lstrip(" #"))
+            and (stripped := line.removeprefix("# via").lstrip(" #"))
             and not stripped.startswith("-r")
         }
 

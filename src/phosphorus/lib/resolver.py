@@ -5,7 +5,6 @@ from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING
 
 from phosphorus.lib.constants import hash_prefix
-from phosphorus.lib.exceptions import ThirdPartyError
 from phosphorus.lib.packages import Package
 from phosphorus.lib.requirements import ResolvedRequirement
 from phosphorus.lib.subprocess import uv_run
@@ -63,13 +62,9 @@ class Resolver:
                     tmp.write(f"{requirement}\n")
             tmp.seek(0)
             output = uv_run(
-                ["pip", "compile", "--generate-hashes", "--universal", tmp.name]
+                ["pip", "compile", "--generate-hashes", "--universal", tmp.name],
+                verbose=self.verbosity > 0,
             )
-            if output.returncode:
-                if self.verbosity:
-                    print(output.stderr.decode())
-                command = "uv pip compile"
-                raise ThirdPartyError(command)
             print("✅ Done!")
 
         for raw_package_info in self.split_resolution(output.stdout.decode()):

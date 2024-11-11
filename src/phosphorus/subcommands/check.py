@@ -57,7 +57,10 @@ class CheckCommand(BaseCommand):
             raise RuntimeError(msg)
 
     def check_outdated(self) -> None:
-        pip_list = uv_run(["pip", "list", "--exclude-editable", "--format=json"])
+        pip_list = uv_run(
+            ["pip", "list", "--exclude-editable", "--format=json"],
+            verbose=self.verbosity > 0,
+        )
         installed_packages: list[InstalledVersions] = [
             {
                 "package": Package(package_info["name"]),

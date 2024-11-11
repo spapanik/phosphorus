@@ -8,7 +8,6 @@ from warnings import warn
 
 from phosphorus._seven import toml_parser
 from phosphorus.lib.constants import hash_prefix
-from phosphorus.lib.exceptions import ThirdPartyError
 from phosphorus.lib.markers import Marker
 from phosphorus.lib.packages import Package
 from phosphorus.lib.requirements import ResolvedRequirement
@@ -88,7 +87,9 @@ class InstallCommand(BaseCommand):
     def get_package_diff(self) -> PackageDiff:
         print("🔎 Looking for packages to install/remove/upgrade...")
 
-        output = uv_run(["pip", "freeze", "--exclude-editable"])
+        output = uv_run(
+            ["pip", "freeze", "--exclude-editable"], verbose=self.verbosity > 0
+        )
         existing_venv = {
             resolved_requirement.package: resolved_requirement
             for requirement in output.stdout.decode().splitlines()
@@ -160,15 +161,11 @@ class InstallCommand(BaseCommand):
             line = f"{package}=={new_version} {hashes}"
             tmp.write(f"{line}\n")
             tmp.seek(0)
-            output = uv_run(
-                ["pip", "install", "--no-deps", "--require-hashes", "-r", tmp.name]
+            uv_run(
+                ["pip", "install", "--no-deps", "--require-hashes", "-r", tmp.name],
+                verbose=self.verbosity > 0,
             )
-            if output.returncode == 0:
-                print("🗸")
-            else:
-                print()
-                command = "uv pip install"
-                raise ThirdPartyError(command)
+            print("🗸")
 
     def remove_package(self, old_package: ResolvedRequirement) -> None:
         package = old_package.package
@@ -178,13 +175,8 @@ class InstallCommand(BaseCommand):
             f"({SGRString(str(version), params=[SGRParams.BLUE_BRIGHT])})...",
             end=" ",
         )
-        output = uv_run(["pip", "uninstall", package.name])
-        if output.returncode == 0:
-            print("🗸")
-        else:
-            print()
-            command = "uv pip uninstall"
-            raise ThirdPartyError(command)
+        uv_run(["pip", "uninstall", package.name], verbose=self.verbosity > 0)
+        print("🗸")
 
     def install_self(self) -> None:
         print(
@@ -192,10 +184,8 @@ class InstallCommand(BaseCommand):
             f"({SGRString(str(self.meta.version), params=[SGRParams.BLUE_BRIGHT])})...",
             end=" ",
         )
-        output = uv_run(["pip", "install", "--no-deps", "--editable", "."])
-        if output.returncode == 0:
-            print("🗸")
-        else:
-            print()
-            command = "uv pip install"
-            raise ThirdPartyError(command)
+        uv_run(
+            ["pip", "install", "--no-deps", "--editable", "."],
+            verbose=self.verbosity > 0,
+        )
+        print("🗸")

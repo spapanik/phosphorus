@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import shlex
 from typing import TYPE_CHECKING
 
 from phosphorus.lib.constants import pyproject_base_name
@@ -28,9 +29,10 @@ class ImproperlyConfiguredProjectError(RuntimeError):
         super().__init__(msg)
 
 
-class ThirdPartyError(RuntimeError):
-    """A third party cli tool exited unsuccessfully"""
+class UVError(RuntimeError):
+    """uv exited unsuccessfully"""
 
-    def __init__(self, command: str) -> None:
-        msg = f"Command `{command}` exited with a non-zero status code"
+    def __init__(self, command_parts: str) -> None:
+        command_string = shlex.join(command_parts)
+        msg = f"uv command `{command_string}` exited with a non-zero status code"
         super().__init__(msg)

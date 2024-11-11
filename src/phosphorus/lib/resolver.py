@@ -8,7 +8,7 @@ from phosphorus.lib.constants import hash_prefix
 from phosphorus.lib.exceptions import ThirdPartyError
 from phosphorus.lib.packages import Package
 from phosphorus.lib.requirements import ResolvedRequirement
-from phosphorus.lib.uv_runner import uv_run
+from phosphorus.lib.subprocess import uv_run
 
 if TYPE_CHECKING:
     from collections.abc import Iterator

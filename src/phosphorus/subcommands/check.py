@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from phosphorus._seven import TOMLDecodeError
 from phosphorus.lib.packages import Package, VersionedPackage
 from phosphorus.lib.pypi import get_version_info
-from phosphorus.lib.uv_runner import uv_run
+from phosphorus.lib.subprocess import uv_run
 from phosphorus.lib.versions import Version
 from phosphorus.subcommands.base import BaseCommand
 

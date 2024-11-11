@@ -102,7 +102,7 @@ class InstallCommand(BaseCommand):
         target_venv = {}
         for lock_entry in lock["packages"]:
             marker = Marker.from_string(lock_entry.get("marker", ""))
-            if not marker.evaluate():
+            if not marker.evaluate(verbose=self.verbosity > 0):
                 continue
             if not self.groups & set(lock_entry["groups"]):
                 continue

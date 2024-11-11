@@ -12,6 +12,7 @@ from phosphorus.lib.constants import (
     TokenRule,
 )
 from phosphorus.lib.exceptions import UnreachableCodeError
+from phosphorus.lib.subprocess import python_run
 from phosphorus.lib.utils import canonicalise_name
 from phosphorus.lib.versions import Version, VersionClause
 
@@ -41,8 +42,86 @@ class MarkerAtom:
 
         return cls(variable=variable, operator=operator, value=specs["value"])
 
-    def evaluate(self, extra: str = "") -> bool:
-        environment_value = self.variable.get_env_value(extra)
+    def evaluate_variable(self, extra: str = "", *, verbose: bool = False) -> str:
+        if self.variable == MarkerVariable.PYTHON_VERSION:  # TODO (py3.9): Use match
+            command = (
+                "import platform; "
+                "print('.'.join(platform.python_version_tuple()[:2]), end='')"
+            )
+            return python_run(command, verbose=verbose).stdout.decode()
+
+        if self.variable == MarkerVariable.PYTHON_FULL_VERSION:
+            command = "import platform; print(platform.python_version(), end='')"
+            return python_run(command, verbose=verbose).stdout.decode()
+
+        if self.variable == MarkerVariable.OS_NAME:
+            command = "import os; print(os.name, end='')"
+            return python_run(command, verbose=verbose).stdout.decode()
+
+        if self.variable == MarkerVariable.SYS_PLATFORM:
+            command = "import sys; print(sys.platform, end='')"
+            return python_run(command, verbose=verbose).stdout.decode()
+
+        if self.variable == MarkerVariable.PLATFORM_RELEASE:
+            command = "import platform; print(platform.release(), end='')"
+            return python_run(command, verbose=verbose).stdout.decode()
+
+        if self.variable == MarkerVariable.PLATFORM_SYSTEM:
+            command = "import platform; print(platform.system(), end='')"
+            return python_run(command, verbose=verbose).stdout.decode()
+
+        if self.variable == MarkerVariable.PLATFORM_VERSION:
+            command = "import platform; print(platform.version(), end='')"
+            return python_run(command, verbose=verbose).stdout.decode()
+
+        if self.variable == MarkerVariable.PLATFORM_MACHINE:
+            command = "import platform; print(platform.machine(), end='')"
+            return python_run(command, verbose=verbose).stdout.decode().strip()
+
+        if self.variable == MarkerVariable.PLATFORM_PYTHON_IMPLEMENTATION:
+            command = "import platform; print(platform.python_implementation(), end='')"
+            return python_run(command, verbose=verbose).stdout.decode().strip()
+
+        if self.variable == MarkerVariable.IMPLEMENTATION_NAME:
+            command = "import sys; print(hasattr(sys, 'implementation'), end='')"
+            has_implementation = (
+                python_run(command, verbose=verbose).stdout.decode() == "True"
+            )
+            if not has_implementation:
+                return ""
+            command = "import sys; print(sys.implementation.name, end='')"
+            return python_run(command, verbose=verbose).stdout.decode().strip()
+
+        if self.variable == MarkerVariable.IMPLEMENTATION_VERSION:
+            command = "import sys; print(hasattr(sys, 'implementation'), end='')"
+            has_implementation = (
+                python_run(command, verbose=verbose).stdout.decode() == "True"
+            )
+            if not has_implementation:
+                return "0"
+
+            command = "import sys; print(sys.implementation.version.major, end='')"
+            major = python_run(command, verbose=verbose).stdout.decode().strip()
+            command = "import sys; print(sys.implementation.version.minor, end='')"
+            minor = python_run(command, verbose=verbose).stdout.decode().strip()
+            command = "import sys; print(sys.implementation.version.micro, end='')"
+            micro = python_run(command, verbose=verbose).stdout.decode().strip()
+            command = (
+                "import sys; print(sys.implementation.version.releaselevel, end='')"
+            )
+            releaselevel = python_run(command, verbose=verbose).stdout.decode().strip()
+            version = f"{major}.{minor}.{micro}"
+            if releaselevel == "final":
+                return version
+
+            command = "import sys; print(sys.implementation.version.serial, end='')"
+            serial = python_run(command, verbose=verbose).stdout.decode().strip()
+            return f"{version}{releaselevel[0]}{serial}"
+
+        return extra
+
+    def evaluate(self, extra: str = "", *, verbose: bool = False) -> bool:
+        environment_value = self.evaluate_variable(extra, verbose=verbose)
         if self.operator == ComparisonOperator.IN:  # TODO (py3.9): Use match
             return environment_value in self.value
         if self.operator == ComparisonOperator.NOT_IN:
@@ -121,15 +200,19 @@ class Marker:
 
         return cls(boolean=boolean, markers=tuple(markers))
 
-    def evaluate(self, extra: str = "") -> bool:
+    def evaluate(self, extra: str = "", *, verbose: bool = False) -> bool:
         if not self.markers:
             return True
 
         if self.boolean == BooleanOperator.OR:  # TODO (py3.9): Use match
-            return any(marker.evaluate(extra) for marker in self.markers)
+            return any(
+                marker.evaluate(extra, verbose=verbose) for marker in self.markers
+            )
         if self.boolean == BooleanOperator.AND:
-            return all(marker.evaluate(extra) for marker in self.markers)
-        return self.markers[0].evaluate(extra)
+            return all(
+                marker.evaluate(extra, verbose=verbose) for marker in self.markers
+            )
+        return self.markers[0].evaluate(extra, verbose=verbose)
 
 
 @dataclass(frozen=True)  # TODO (py3.9): Use slots=True

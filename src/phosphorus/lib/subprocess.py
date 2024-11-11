@@ -1,24 +1,26 @@
 from __future__ import annotations
 
+import shutil
 from subprocess import run
 from typing import TYPE_CHECKING
 
 from uv import find_uv_bin
 
-from phosphorus.lib.exceptions import PythonSubprocessError, UVError
+from phosphorus.lib.exceptions import (
+    PythonSubprocessError,
+    UnreachableCodeError,
+    UVError,
+)
 
 if TYPE_CHECKING:
     from subprocess import CompletedProcess
 
 
 def find_python_bin() -> str:
-    return (
-        run(  # noqa: PLW1510, S603
-            ["which", "python"], capture_output=True  # noqa: S607
-        )
-        .stdout.decode()
-        .strip()
-    )
+    python_bin = shutil.which("python")
+    if python_bin is None:
+        raise UnreachableCodeError
+    return python_bin
 
 
 def uv_run(args: list[str], *, verbose: bool) -> CompletedProcess[bytes]:

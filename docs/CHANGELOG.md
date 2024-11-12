@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+### Fixed
+
+-   Fixed a crash when UV returns non-zero exit code
+
 ## [0.8.0] - 2024-11-11
 
 ### Fixed

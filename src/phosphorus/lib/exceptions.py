@@ -32,7 +32,7 @@ class ImproperlyConfiguredProjectError(RuntimeError):
 class UVError(RuntimeError):
     """uv exited unsuccessfully"""
 
-    def __init__(self, command_parts: str) -> None:
+    def __init__(self, *command_parts: str) -> None:
         command_string = shlex.join(command_parts)
         msg = f"uv command `{command_string}` exited with a non-zero status code"
         super().__init__(msg)

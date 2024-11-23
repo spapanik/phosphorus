@@ -48,6 +48,7 @@ class InstallCommand(BaseCommand):
             print("🔒 Lockfile not found, creating one...")
             LockCommand(
                 Namespace(
+                    verbosity=self.verbosity,
                     enforce_pep440=True,
                     allow_pre_releases=False,
                     allow_dev_releases=False,

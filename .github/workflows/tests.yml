@@ -63,4 +63,9 @@ jobs:
           yam install -g main -g test
       - name: Test the project
         run: |
-          yam -e tests
+          yam -e tests --cov --junitxml=junit.xml -o junit_family=legacy
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}

@@ -25,11 +25,11 @@ class LockEntry:
 
 class Resolver:
     __slots__ = (
-        "requirement_groups",
-        "enforce_pep440",
-        "allow_pre_releases",
         "allow_dev_releases",
+        "allow_pre_releases",
+        "enforce_pep440",
         "packages",
+        "requirement_groups",
         "resolved_packages",
         "verbosity",
     )

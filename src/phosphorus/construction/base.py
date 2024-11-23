@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class Builder:
-    __slots__ = ("config", "metadata_dir", "output_dir", "meta")
+    __slots__ = ("config", "meta", "metadata_dir", "output_dir")
 
     def __init__(
         self, output_dir: Path, config: dict[str, Any] | None, metadata_dir: Path | None

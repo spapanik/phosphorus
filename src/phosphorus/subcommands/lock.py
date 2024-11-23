@@ -14,10 +14,10 @@ if TYPE_CHECKING:
 
 class LockCommand(BaseCommand):
     __slots__ = (
-        "force",
-        "enforce_pep440",
-        "allow_pre_releases",
         "allow_dev_releases",
+        "allow_pre_releases",
+        "enforce_pep440",
+        "force",
         "timestamp",
     )
 

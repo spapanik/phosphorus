@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 class CheckCommand(BaseCommand):
-    __slots__ = ("outdated", "lockfile")
+    __slots__ = ("lockfile", "outdated")
 
     def __init__(self, _args: Namespace, /) -> None:
         super().__init__(_args)

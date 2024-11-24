@@ -25,26 +25,36 @@ class SdistBuilder(Builder):
         for package in self.meta.package_paths:
             for file in package.absolute_path.rglob("*"):
                 if file.is_file():
-                    yield ArchiveFile.from_file(source=file, base_dir=base_dir)
+                    yield ArchiveFile.from_file(
+                        source=file, base_dir=base_dir, metadata=self.meta
+                    )
 
     def non_package_files(self, _temp_dir: Path) -> Iterator[ArchiveFile]:
         base_dir = self.meta.base_dir
         yield ArchiveFile.from_file(
-            base_dir.joinpath(pyproject_base_name), base_dir=base_dir
+            base_dir.joinpath(pyproject_base_name),
+            base_dir=base_dir,
+            metadata=self.meta,
         )
 
         for license_file in get_license_files(base_dir):
-            yield ArchiveFile.from_file(license_file, base_dir=base_dir)
+            yield ArchiveFile.from_file(
+                license_file, base_dir=base_dir, metadata=self.meta
+            )
 
         if self.meta.readme.read_text():
-            yield ArchiveFile.from_file(self.meta.readme, base_dir=base_dir)
+            yield ArchiveFile.from_file(
+                self.meta.readme, base_dir=base_dir, metadata=self.meta
+            )
 
     def get_info_file(self, temp_dir: Path, _data: str = "") -> ArchiveFile:
         pkg_info = temp_dir.joinpath("PKG-INFO")
         with pkg_info.open("w") as file:
             file.writelines(f"{line}\n" for line in self.get_metadata_content())
 
-        return ArchiveFile.from_file(source=pkg_info, base_dir=temp_dir)
+        return ArchiveFile.from_file(
+            source=pkg_info, base_dir=temp_dir, metadata=self.meta
+        )
 
     def write_files(
         self, files: Iterable[ArchiveFile], package: Path, temp_dir: Path

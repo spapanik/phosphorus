@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+### Fixed
+
+-   Fixed uploading errors for sdist
+
 ## [0.8.1] - 2024-11-14
 
 ### Fixed

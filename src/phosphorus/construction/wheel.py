@@ -50,20 +50,24 @@ class WheelBuilder(Builder):
     def package_files(self, temp_dir: Path) -> Iterator[ArchiveFile]:
         if self.editable:
             file = self.create_pth(temp_dir)
-            yield ArchiveFile.from_file(source=file, base_dir=temp_dir)
+            yield ArchiveFile.from_file(
+                source=file, base_dir=temp_dir, metadata=self.meta
+            )
             return
 
         for package in self.meta.package_paths:
             for file in package.absolute_path.rglob("*"):
                 if file.is_file():
                     yield ArchiveFile.from_file(
-                        source=file, base_dir=package.absolute_path
+                        source=file, base_dir=package.absolute_path, metadata=self.meta
                     )
 
     def non_package_files(self, temp_dir: Path) -> Iterator[ArchiveFile]:
         for file in self.prepare_metadata(temp_dir).rglob("*"):
             if file.is_file():
-                yield ArchiveFile.from_file(source=file, base_dir=temp_dir)
+                yield ArchiveFile.from_file(
+                    source=file, base_dir=temp_dir, metadata=self.meta
+                )
 
     def get_info_file(self, temp_dir: Path, data: list[list[Any]]) -> ArchiveFile:
         info_file = temp_dir.joinpath(self.dist_info, "RECORD")
@@ -72,7 +76,9 @@ class WheelBuilder(Builder):
             write.writerows(data)
             write.writerow([info_file.relative_to(temp_dir), "", ""])
 
-        return ArchiveFile.from_file(source=info_file, base_dir=temp_dir)
+        return ArchiveFile.from_file(
+            source=info_file, base_dir=temp_dir, metadata=self.meta
+        )
 
     def write_files(
         self, files: Iterable[ArchiveFile], package: Path, temp_dir: Path

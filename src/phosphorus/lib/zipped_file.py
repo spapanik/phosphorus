@@ -3,13 +3,15 @@ from __future__ import annotations
 import hashlib
 from base64 import urlsafe_b64encode
 from dataclasses import dataclass
+from pathlib import Path
 from stat import S_ISDIR
 from tarfile import TarInfo
 from typing import TYPE_CHECKING
 from zipfile import ZipInfo
 
 if TYPE_CHECKING:
-    from pathlib import Path
+
+    from phosphorus.lib.metadata import Metadata
 
 
 @dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
@@ -19,10 +21,11 @@ class ArchiveFile:
     digest: str
     size: int
     mode: int
+    meta: Metadata
 
     @classmethod
     def from_file(
-        cls, source: Path, base_dir: Path
+        cls, source: Path, base_dir: Path, metadata: Metadata
     ) -> ArchiveFile:  # TODO (py3.10): Use Self
         stat = source.stat()
 
@@ -32,6 +35,7 @@ class ArchiveFile:
             digest=cls.hash_file(source),
             size=stat.st_size,
             mode=stat.st_mode,
+            meta=metadata,
         )
 
     @property
@@ -48,7 +52,8 @@ class ArchiveFile:
 
     @property
     def tar_info(self) -> TarInfo:
-        path = self.relative_path
+        tar_dir = f"{self.meta.package.distribution_name}-{self.meta.version}"
+        path = Path(tar_dir).joinpath(self.relative_path)
         tarinfo = TarInfo(path.as_posix())
         tarinfo.mtime = 0
         tarinfo.uid = 0

@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+## [0.8.2] - 2024-11-24
+
 ### Fixed
 
 -   Fixed uploading errors for sdist
@@ -112,7 +114,8 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
-[Unreleased]: https://github.com/spapanik/phosphorus/compare/v0.8.1...main
+[Unreleased]: https://github.com/spapanik/phosphorus/compare/v0.8.2...main
+[0.8.2]: https://github.com/spapanik/phosphorus/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/spapanik/phosphorus/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/spapanik/phosphorus/compare/v0.7.0...v0.8.0
 [0.7.0]: https://github.com/spapanik/phosphorus/compare/v0.6.0...v0.7.0

@@ -10,11 +10,14 @@ if TYPE_CHECKING:
 
 
 class UnreachableCodeError(AssertionError):
-    """This is an aid for static analysers"""
+    """Mark a branch as unreachable.
+
+    This is to aid static analysers.
+    """
 
 
 class MissingProjectRootError(RuntimeError):
-    """The project root could not be found"""
+    """The project root could not be found."""
 
     def __init__(self, path: Path) -> None:
         msg = f"Could not find {pyproject_base_name} in {path} or any parent directory"
@@ -22,7 +25,7 @@ class MissingProjectRootError(RuntimeError):
 
 
 class ImproperlyConfiguredProjectError(RuntimeError):
-    """The pyproject.toml file is not correctly formatted"""
+    """The pyproject.toml file is not correctly formatted."""
 
     def __init__(self, key: str) -> None:
         msg = f"The pyproject.toml file is missing the key: {key} and isn't marked as dynamic"
@@ -30,7 +33,7 @@ class ImproperlyConfiguredProjectError(RuntimeError):
 
 
 class UVError(RuntimeError):
-    """uv exited unsuccessfully"""
+    """uv exited unsuccessfully."""
 
     def __init__(self, *command_parts: str) -> None:
         command_string = shlex.join(command_parts)
@@ -39,7 +42,7 @@ class UVError(RuntimeError):
 
 
 class PythonSubprocessError(RuntimeError):
-    """python as a subprocess exited unsuccessfully"""
+    """python as a subprocess exited unsuccessfully."""
 
     def __init__(self, python_binary: str, command: str) -> None:
         msg = f"python command `{command}` exited with a non-zero status code when run with `{python_binary}`"

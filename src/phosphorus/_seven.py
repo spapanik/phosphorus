@@ -10,7 +10,7 @@ if MINOR >= 11:  # noqa: PLR2004
 
     toml_parser = tomllib.load
     TOMLDecodeError = tomllib.TOMLDecodeError
-else:  # TODO (py3.10): Use tomllib
+else:  # (py3.10): Use tomllib
     import tomli
 
     toml_parser = tomli.load

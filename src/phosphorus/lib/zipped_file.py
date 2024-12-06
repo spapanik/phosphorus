@@ -14,7 +14,7 @@ if TYPE_CHECKING:
     from phosphorus.lib.metadata import Metadata
 
 
-@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
+@dataclass(frozen=True, order=True)  # (py3.9): Use slots=True
 class ArchiveFile:
     absolute_path: Path
     base_dir: Path
@@ -26,7 +26,7 @@ class ArchiveFile:
     @classmethod
     def from_file(
         cls, source: Path, base_dir: Path, metadata: Metadata
-    ) -> ArchiveFile:  # TODO (py3.10): Use Self
+    ) -> ArchiveFile:  # (py3.10): Use Self
         stat = source.stat()
 
         return cls(

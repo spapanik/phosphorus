@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from phosphorus.lib.resolver import LockEntry
     from phosphorus.lib.versions import Version
 
-Match = Optional[str]  # TODO (py3.9): Use |
+Match = Optional[str]  # (py3.9): Use |
 
 
 class ResolvedPackageInfo(TypedDict):

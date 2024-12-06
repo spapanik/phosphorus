@@ -9,14 +9,14 @@ from phosphorus.lib.regex import requirement_pattern
 from phosphorus.lib.versions import Version, VersionClause
 
 
-@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
+@dataclass(frozen=True, order=True)  # (py3.9): Use slots=True
 class Requirement:
     package: Package
     clauses: tuple[VersionClause, ...]
     marker: Marker
 
     @classmethod
-    def from_string(cls, requirement: str) -> Requirement:  # TODO (py3.10): Use Self
+    def from_string(cls, requirement: str) -> Requirement:  # (py3.10): Use Self
         clause, *markers = requirement.split(";", maxsplit=1)
         marker = (
             Marker.from_string(markers[0].strip())
@@ -50,22 +50,20 @@ class Requirement:
         return name
 
 
-@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
+@dataclass(frozen=True, order=True)  # (py3.9): Use slots=True
 class RequirementGroup:
     group: str
     requirements: tuple[Requirement, ...]
 
 
-@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
+@dataclass(frozen=True, order=True)  # (py3.9): Use slots=True
 class ResolvedRequirement:
     package: Package
     version: Version
     marker: Marker = field(default_factory=lambda: Marker(boolean=None, markers=()))
 
     @classmethod
-    def from_string(
-        cls, requirement: str
-    ) -> ResolvedRequirement:  # TODO (py3.10): Use Self
+    def from_string(cls, requirement: str) -> ResolvedRequirement:  # (py3.10): Use Self
         resolved_package, *markers = requirement.split(";", maxsplit=1)
         marker = (
             Marker.from_string(markers[0].strip())

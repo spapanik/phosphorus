@@ -21,7 +21,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
 
-@dataclass(frozen=True)  # TODO (py3.9): Use slots=True
+@dataclass(frozen=True)  # (py3.9): Use slots=True
 class MarkerAtom:
     variable: MarkerVariable
     operator: ComparisonOperator
@@ -31,7 +31,7 @@ class MarkerAtom:
         return f"{self.variable} {self.operator} '{self.value}'"
 
     @classmethod
-    def from_dict(cls, specs: dict[str, Any]) -> MarkerAtom:  # TODO (py3.10): Use Self
+    def from_dict(cls, specs: dict[str, Any]) -> MarkerAtom:  # (py3.10): Use Self
         variable = specs["variable"]
         if isinstance(variable, str):
             variable = MarkerVariable(variable)
@@ -43,7 +43,7 @@ class MarkerAtom:
         return cls(variable=variable, operator=operator, value=specs["value"])
 
     def evaluate_variable(self, extra: str = "", *, verbose: bool = False) -> str:
-        if self.variable == MarkerVariable.PYTHON_VERSION:  # TODO (py3.9): Use match
+        if self.variable == MarkerVariable.PYTHON_VERSION:  # (py3.9): Use match
             command = (
                 "import platform; "
                 "print('.'.join(platform.python_version_tuple()[:2]), end='')"
@@ -122,7 +122,7 @@ class MarkerAtom:
 
     def evaluate(self, extra: str = "", *, verbose: bool = False) -> bool:
         environment_value = self.evaluate_variable(extra, verbose=verbose)
-        if self.operator == ComparisonOperator.IN:  # TODO (py3.9): Use match
+        if self.operator == ComparisonOperator.IN:  # (py3.9): Use match
             return environment_value in self.value
         if self.operator == ComparisonOperator.NOT_IN:
             return environment_value in self.value
@@ -159,7 +159,7 @@ class MarkerAtom:
         raise UnreachableCodeError
 
 
-@dataclass(frozen=True)  # TODO (py3.9): Use slots=True
+@dataclass(frozen=True)  # (py3.9): Use slots=True
 class Marker:
     boolean: BooleanOperator | None
     markers: tuple[Marker | MarkerAtom, ...]
@@ -182,7 +182,7 @@ class Marker:
         )
 
     @classmethod
-    def from_dict(cls, specs: dict[str, Any]) -> Marker:  # TODO (py3.10): Use Self
+    def from_dict(cls, specs: dict[str, Any]) -> Marker:  # (py3.10): Use Self
         boolean = specs.get("boolean")
         if isinstance(boolean, str):
             boolean = BooleanOperator(boolean)
@@ -193,7 +193,7 @@ class Marker:
             variable = marker.get("variable")
             if isinstance(variable, str):
                 variable = MarkerVariable(variable)
-            if isinstance(variable, MarkerVariable):  # TODO (py3.9): Use match
+            if isinstance(variable, MarkerVariable):  # (py3.9): Use match
                 markers.append(MarkerAtom.from_dict(marker))
             else:
                 markers.append(cls.from_dict(marker))
@@ -204,7 +204,7 @@ class Marker:
         if not self.markers:
             return True
 
-        if self.boolean == BooleanOperator.OR:  # TODO (py3.9): Use match
+        if self.boolean == BooleanOperator.OR:  # (py3.9): Use match
             return any(
                 marker.evaluate(extra, verbose=verbose) for marker in self.markers
             )
@@ -215,7 +215,7 @@ class Marker:
         return self.markers[0].evaluate(extra, verbose=verbose)
 
 
-@dataclass(frozen=True)  # TODO (py3.9): Use slots=True
+@dataclass(frozen=True)  # (py3.9): Use slots=True
 class Token:
     name: re.Pattern[str]
     text: str

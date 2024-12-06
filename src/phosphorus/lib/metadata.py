@@ -32,19 +32,19 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
 
-@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
+@dataclass(frozen=True, order=True)  # (py3.9): Use slots=True
 class Script:
     command: str
     entrypoint: str
 
 
-@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
+@dataclass(frozen=True, order=True)  # (py3.9): Use slots=True
 class ProjectURL:
     name: str
     url: str
 
 
-@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
+@dataclass(frozen=True, order=True)  # (py3.9): Use slots=True
 class LocalPackage:
     base_dir: Path
     path: Path
@@ -60,7 +60,7 @@ class JSONEncoder(json.JSONEncoder):
         super().__init__(*args, **kwargs)
 
     def default(self, o: Any) -> Any:
-        if isinstance(o, Path):  # TODO (py3.9): Use match
+        if isinstance(o, Path):  # (py3.9): Use match
             if o == Path(os.devnull):
                 return os.devnull
             if o.is_absolute():
@@ -76,7 +76,7 @@ class JSONEncoder(json.JSONEncoder):
         return super().default(o)
 
 
-@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
+@dataclass(frozen=True, order=True)  # (py3.9): Use slots=True
 class Metadata:
     base_dir: Path
     package: Package
@@ -97,7 +97,7 @@ class Metadata:
     package_paths: tuple[LocalPackage, ...]
 
     @classmethod
-    def from_path(cls, path: Path | None = None) -> Metadata:  # TODO (py3.10): Use Self
+    def from_path(cls, path: Path | None = None) -> Metadata:  # (py3.10): Use Self
         settings_path = get_pyproject(path)
         settings = get_settings(settings_path)
 

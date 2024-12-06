@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from phosphorus.lib.types import ResolvedPackageInfo
 
 
-@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
+@dataclass(frozen=True, order=True)  # (py3.9): Use slots=True
 class LockEntry:
     requirement: ResolvedRequirement
     groups: tuple[str, ...]

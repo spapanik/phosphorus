@@ -7,13 +7,13 @@ if TYPE_CHECKING:
     from collections.abc import Iterable
 
 
-@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
+@dataclass(frozen=True, order=True)  # (py3.9): Use slots=True
 class Contributor:
     name: str
     email: str
 
     @classmethod
-    def from_data(cls, data: dict[str, str]) -> Contributor:  # TODO (py3.10): Use Self
+    def from_data(cls, data: dict[str, str]) -> Contributor:  # (py3.10): Use Self
         return cls(name=data.get("name", ""), email=data.get("email", ""))
 
     def formatted_email(self) -> str:

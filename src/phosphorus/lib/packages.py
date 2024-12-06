@@ -16,10 +16,9 @@ if TYPE_CHECKING:
     from phosphorus.lib.requirements import Requirement
 
 
-@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
+@dataclass(frozen=True, order=True)  # (py3.9): Use slots=True
 class VersionedPackage:
-    """
-    A package with an optional version.
+    """A package with an optional version.
 
     When the version is None, it represents the latest version.
     """
@@ -28,7 +27,7 @@ class VersionedPackage:
     version: Version | None = None
 
 
-@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
+@dataclass(frozen=True, order=True)  # (py3.9): Use slots=True
 class ResolvedPackage:
     package: Package
     version: Version
@@ -37,7 +36,7 @@ class ResolvedPackage:
     requires_dist: list[Requirement]
 
 
-@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
+@dataclass(frozen=True, order=True)  # (py3.9): Use slots=True
 class VersionInfo:
     etag: str
     requires_dist: list[str]
@@ -48,7 +47,7 @@ class VersionInfo:
     releases: list[Version] | None = None
 
     @classmethod
-    def from_cache(cls, cache_path: Path) -> VersionInfo:  # TODO (py3.10): Use Self
+    def from_cache(cls, cache_path: Path) -> VersionInfo:  # (py3.10): Use Self
         with cache_path.open() as file:
             info: dict[str, Any] = json.load(file)
         releases = (
@@ -67,9 +66,7 @@ class VersionInfo:
         )
 
     @classmethod
-    def from_response(
-        cls, response: HTTPResponse
-    ) -> VersionInfo:  # TODO (py3.10): Use Self
+    def from_response(cls, response: HTTPResponse) -> VersionInfo:  # (py3.10): Use Self
         info = json.loads(response.read())
         releases = (
             [Version.from_string(release) for release in info["releases"]]
@@ -101,7 +98,7 @@ class VersionInfo:
         return out
 
 
-@dataclass(frozen=True, order=True)  # TODO (py3.9): Use slots=True
+@dataclass(frozen=True, order=True)  # (py3.9): Use slots=True
 class Package:
     name: str
     distribution_name: str = field(repr=False, compare=False)

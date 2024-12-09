@@ -17,8 +17,7 @@ class BaseCommand:
         self.meta = Metadata.from_path()
 
     def run(self) -> None:
-        msg = f"{self.__class__.__qualname__} must implement run"
-        raise NotImplementedError(msg)
+        raise NotImplementedError
 
     def get_current_hash(self) -> str:
         with self.meta.lockfile.open("rb") as file:

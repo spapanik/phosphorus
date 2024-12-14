@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+### Fixed
+
+-   Fixed universal resolver bug
+
 ## [0.8.2] - 2024-11-24
 
 ### Fixed

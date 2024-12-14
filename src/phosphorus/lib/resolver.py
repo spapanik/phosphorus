@@ -29,8 +29,8 @@ class Resolver:
         "allow_pre_releases",
         "enforce_pep440",
         "packages",
+        "parents",
         "requirement_groups",
-        "resolved_packages",
         "verbosity",
     )
 
@@ -53,7 +53,7 @@ class Resolver:
             for requirement_group in self.requirement_groups
             for requirement in requirement_group.requirements
         }
-        self.resolved_packages: dict[Package, ResolvedPackageInfo] = {}
+        self.parents: dict[Package, set[Package]] = {}
 
     def resolve(self) -> list[LockEntry]:
         with NamedTemporaryFile("w", delete=False) as tmp:
@@ -67,12 +67,17 @@ class Resolver:
             )
             print("✅ Done!")
 
+        resolved_packages: list[ResolvedPackageInfo] = []
         for raw_package_info in self.split_resolution(output.stdout.decode()):
-            self.preprocess(raw_package_info)
+            package_info = self.preprocess(raw_package_info)
+            package = package_info["requirement"].package
+            resolved_packages.append(package_info)
+            self.parents.setdefault(package, set())
+            self.parents[package].update(package_info["parents"])
 
         return [
             self.get_lock_entry(resolved_package)
-            for resolved_package in self.resolved_packages.values()
+            for resolved_package in resolved_packages
         ]
 
     @staticmethod
@@ -97,7 +102,7 @@ class Resolver:
         if lines and any(not line.startswith("#") for line in lines):
             yield lines
 
-    def preprocess(self, raw_package_info: list[str]) -> None:
+    def preprocess(self, raw_package_info: list[str]) -> ResolvedPackageInfo:
         requirement = ResolvedRequirement.from_string(raw_package_info[0])
         parents = {
             Package(name=stripped)
@@ -107,7 +112,7 @@ class Resolver:
             and not stripped.startswith("-r")
         }
 
-        self.resolved_packages[requirement.package] = {
+        return {
             "requirement": requirement,
             "hashes": tuple(
                 file_hash[len(hash_prefix) :]
@@ -118,9 +123,10 @@ class Resolver:
         }
 
     def get_lock_entry(self, resolved_package: ResolvedPackageInfo) -> LockEntry:
-        group = self.packages.get(resolved_package["requirement"].package, "")
+        package = resolved_package["requirement"].package
+        group = self.packages.get(package, "")
         groups = {group} if group else set()
-        parents = resolved_package["parents"].copy()
+        parents = self.parents[package].copy()
         seen = set()
         while parents:
             parent = parents.pop()
@@ -130,7 +136,7 @@ class Resolver:
             if group := self.packages.get(parent, ""):
                 groups.add(group)
                 continue
-            parents.update(self.resolved_packages[parent]["parents"])
+            parents.update(self.parents[parent])
         return LockEntry(
             requirement=resolved_package["requirement"],
             groups=tuple(sorted(groups)),

@@ -7,7 +7,7 @@ from phosphorus.subcommands.lock import LockCommand
 
 def main() -> None:
     args = parse_args()
-    if args.subcommand == "build":  # (py3.9): Use match
+    if args.subcommand == "build":  # upgrade: py3.9: Use match
         BuildCommand(args).run()
     elif args.subcommand == "check":
         CheckCommand(args).run()

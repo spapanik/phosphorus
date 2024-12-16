@@ -10,11 +10,12 @@ from typing import TYPE_CHECKING
 from zipfile import ZipInfo
 
 if TYPE_CHECKING:
+    from typing_extensions import Self  # upgrade: py3.10: import from typing
 
     from phosphorus.lib.metadata import Metadata
 
 
-@dataclass(frozen=True, order=True)  # (py3.9): Use slots=True
+@dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
 class ArchiveFile:
     absolute_path: Path
     base_dir: Path
@@ -24,9 +25,7 @@ class ArchiveFile:
     meta: Metadata
 
     @classmethod
-    def from_file(
-        cls, source: Path, base_dir: Path, metadata: Metadata
-    ) -> ArchiveFile:  # (py3.10): Use Self
+    def from_file(cls, source: Path, base_dir: Path, metadata: Metadata) -> Self:
         stat = source.stat()
 
         return cls(

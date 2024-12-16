@@ -3,7 +3,7 @@ from __future__ import annotations
 import csv
 import shutil
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 from zipfile import ZIP_DEFLATED, ZipFile
 
 from phosphorus.__version__ import __version__
@@ -13,7 +13,7 @@ from phosphorus.lib.tags import Tag
 from phosphorus.lib.zipped_file import ArchiveFile
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterable, Iterator, Mapping, Sequence
 
 
 class WheelBuilder(Builder):
@@ -22,7 +22,7 @@ class WheelBuilder(Builder):
     def __init__(
         self,
         output_dir: Path,
-        config: dict[str, Any] | None,
+        config: Mapping[str, str] | None,
         metadata_dir: Path | None,
         *,
         editable: bool = False,
@@ -69,7 +69,9 @@ class WheelBuilder(Builder):
                     source=file, base_dir=temp_dir, metadata=self.meta
                 )
 
-    def get_info_file(self, temp_dir: Path, data: list[list[Any]]) -> ArchiveFile:
+    def get_info_file(
+        self, temp_dir: Path, data: Sequence[tuple[Path, str, int]]
+    ) -> ArchiveFile:
         info_file = temp_dir.joinpath(self.dist_info, "RECORD")
         with info_file.open("w") as csv_file:
             write = csv.writer(csv_file)
@@ -92,7 +94,7 @@ class WheelBuilder(Builder):
                     compress_type=ZIP_DEFLATED,
                 )
                 rows.append(
-                    [archive_file.relative_path, archive_file.digest, archive_file.size]
+                    (archive_file.relative_path, archive_file.digest, archive_file.size)
                 )
 
             record_info = self.get_info_file(temp_dir, rows)

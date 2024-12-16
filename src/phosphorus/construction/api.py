@@ -2,17 +2,20 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
+from typing import TYPE_CHECKING
 
 from phosphorus.construction.sdist import SdistBuilder
 from phosphorus.construction.wheel import WheelBuilder
+
+if TYPE_CHECKING:
+    from collections.abc import Mapping
 
 # mandatory hooks
 
 
 def build_wheel(
     wheel_directory: str,
-    config_settings: dict[str, Any] | None = None,
+    config_settings: Mapping[str, str] | None = None,
     metadata_directory: str | None = None,
 ) -> str:
     metadata_path = None if metadata_directory is None else Path(metadata_directory)
@@ -21,7 +24,7 @@ def build_wheel(
 
 
 def build_sdist(
-    sdist_directory: str, config_settings: dict[str, Any] | None = None
+    sdist_directory: str, config_settings: Mapping[str, str] | None = None
 ) -> str:
     builder = SdistBuilder(Path(sdist_directory), config_settings, None)
     return builder.build().name
@@ -31,7 +34,7 @@ def build_sdist(
 
 
 def prepare_metadata_for_build_wheel(
-    metadata_directory: str, config_settings: dict[str, Any] | None = None
+    metadata_directory: str, config_settings: Mapping[str, str] | None = None
 ) -> str:
     builder = WheelBuilder(Path(os.devnull), config_settings, Path(metadata_directory))
     return builder.prepare_metadata().name
@@ -39,7 +42,7 @@ def prepare_metadata_for_build_wheel(
 
 def build_editable(
     wheel_directory: str,
-    config_settings: dict[str, Any] | None = None,
+    config_settings: Mapping[str, str] | None = None,
     metadata_directory: str | None = None,
 ) -> str:
     metadata_path = None if metadata_directory is None else Path(metadata_directory)

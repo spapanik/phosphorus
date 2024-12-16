@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from phosphorus.lib.pypi import get_version_info
 from phosphorus.lib.utils import canonicalise_name
@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self  # upgrade: py3.10: import from typing
 
     from phosphorus.lib.requirements import Requirement
+    from phosphorus.lib.types import VersionInfoDict
 
 
 @dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
@@ -51,7 +52,7 @@ class VersionInfo:
     @classmethod
     def from_cache(cls, cache_path: Path) -> Self:
         with cache_path.open() as file:
-            info: dict[str, Any] = json.load(file)
+            info: VersionInfoDict = json.load(file)
         releases = (
             [Version.from_string(release) for release in info["releases"]]
             if "releases" in info
@@ -85,8 +86,8 @@ class VersionInfo:
             releases=releases,
         )
 
-    def as_dict(self) -> dict[str, Any]:
-        out = {
+    def as_dict(self) -> VersionInfoDict:
+        out: VersionInfoDict = {
             "ETag": self.etag,
             "requires_dist": self.requires_dist,
             "requires_python": self.requires_python,

@@ -6,14 +6,13 @@ from tempfile import NamedTemporaryFile
 from typing import TYPE_CHECKING
 from warnings import warn
 
-from phosphorus._seven import toml_parser
 from phosphorus.lib.constants import hash_prefix
 from phosphorus.lib.markers import Marker
 from phosphorus.lib.packages import Package
 from phosphorus.lib.requirements import ResolvedRequirement
 from phosphorus.lib.resolver import LockEntry
 from phosphorus.lib.subprocess import uv_run
-from phosphorus.lib.term import SGRParams, SGRString
+from phosphorus.lib.term import SGRParams, SGRString, write
 from phosphorus.lib.versions import Version
 from phosphorus.subcommands.base import BaseCommand
 from phosphorus.subcommands.lock import LockCommand
@@ -34,10 +33,10 @@ class InstallCommand(BaseCommand):
         try:
             self.install()
         except RuntimeError as exc:
-            print(f"❌ Installation failed: {exc}", file=sys.stderr)
+            write(["❌ Installation failed: ", exc], is_error=True)
             sys.exit(1)
         else:
-            print("✅ Success: Installation finished successfully!")
+            write(["✅ Success: Installation finished successfully!"])
 
     def install(self) -> None:
         if not self.groups:
@@ -45,7 +44,7 @@ class InstallCommand(BaseCommand):
             raise RuntimeError(msg)
 
         if not self.meta.lockfile.exists():
-            print("🔒 Lockfile not found, creating one...")
+            write(["🔒 Lockfile not found, creating one..."])
             LockCommand(
                 Namespace(
                     verbosity=self.verbosity,
@@ -59,16 +58,16 @@ class InstallCommand(BaseCommand):
         package_diff = self.get_package_diff()
 
         if package_diff["update"]:
-            print("📦 Installing packages...")
+            write(["📦 Installing packages..."])
         else:
-            print("📦 No packages to be updated, skipping...")
+            write(["📦 No packages to be updated, skipping..."])
         for old_package, lock_entry in package_diff["update"]:
             self.install_package(old_package, lock_entry)
         if self.sync:
             if package_diff["remove"]:
-                print("🧹 Removing packages...")
+                write(["🧹 Removing packages..."])
             else:
-                print("🧹 No packages to be removed, skipping...")
+                write(["🧹 No packages to be removed, skipping..."])
             for old_package in package_diff["remove"]:
                 self.remove_package(old_package)
         self.install_self()
@@ -86,7 +85,7 @@ class InstallCommand(BaseCommand):
         return all_groups - excluded
 
     def get_package_diff(self) -> PackageDiff:
-        print("🔎 Looking for packages to install/remove/upgrade...")
+        write(["🔎 Looking for packages to install/remove/upgrade..."])
 
         output = uv_run(
             ["pip", "freeze", "--exclude-editable"], verbose=self.verbosity > 0
@@ -97,8 +96,7 @@ class InstallCommand(BaseCommand):
             if (resolved_requirement := ResolvedRequirement.from_string(requirement))
         }
 
-        with self.meta.lockfile.open("rb") as lockfile:
-            lock = toml_parser(lockfile)
+        lock = self.meta.lockfile_content
 
         target_venv = {}
         for lock_entry in lock["packages"]:
@@ -153,9 +151,16 @@ class InstallCommand(BaseCommand):
         else:
             action = "Downgrading"
             version = f"{old_version} → {new_version}"
-        print(
-            f"⏳ {action} {SGRString(str(package), params=[SGRParams.CYAN])} "
-            f"({SGRString(version, params=[SGRParams.BLUE_BRIGHT])})...",
+        write(
+            [
+                "⏳ ",
+                action,
+                " ",
+                SGRString(str(package), params=[SGRParams.CYAN]),
+                " (",
+                SGRString(version, params=[SGRParams.BLUE_BRIGHT]),
+                ")...",
+            ],
             end=" ",
         )
         with NamedTemporaryFile("w", delete=False) as tmp:
@@ -166,27 +171,37 @@ class InstallCommand(BaseCommand):
                 ["pip", "install", "--no-deps", "--require-hashes", "-r", tmp.name],
                 verbose=self.verbosity > 0,
             )
-            print("🗸")
+            write(["🗸"])
 
     def remove_package(self, old_package: ResolvedRequirement) -> None:
         package = old_package.package
         version = old_package.version
-        print(
-            f"⏳ Removing {SGRString(str(package), params=[SGRParams.CYAN])} "
-            f"({SGRString(str(version), params=[SGRParams.BLUE_BRIGHT])})...",
+        write(
+            [
+                "⏳ Removing ",
+                SGRString(str(package), params=[SGRParams.CYAN]),
+                " (",
+                SGRString(str(version), params=[SGRParams.BLUE_BRIGHT]),
+                ")...",
+            ],
             end=" ",
         )
         uv_run(["pip", "uninstall", package.name], verbose=self.verbosity > 0)
-        print("🗸")
+        write(["🗸"])
 
     def install_self(self) -> None:
-        print(
-            f"⏳ Installing {SGRString(str(self.meta.package), params=[SGRParams.CYAN])} "
-            f"({SGRString(str(self.meta.version), params=[SGRParams.BLUE_BRIGHT])})...",
+        write(
+            [
+                "⏳ Installing ",
+                SGRString(str(self.meta.package), params=[SGRParams.CYAN]),
+                " (",
+                SGRString(str(self.meta.version), params=[SGRParams.BLUE_BRIGHT]),
+                ")...",
+            ],
             end=" ",
         )
         uv_run(
             ["pip", "install", "--no-deps", "--editable", "."],
             verbose=self.verbosity > 0,
         )
-        print("🗸")
+        write(["🗸"])

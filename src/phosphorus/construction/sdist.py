@@ -9,7 +9,7 @@ from phosphorus.lib.licenses import get_license_files
 from phosphorus.lib.zipped_file import ArchiveFile
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterable, Iterator, Sequence
     from pathlib import Path
 
 
@@ -47,7 +47,9 @@ class SdistBuilder(Builder):
                 self.meta.readme, base_dir=base_dir, metadata=self.meta
             )
 
-    def get_info_file(self, temp_dir: Path, _data: str = "") -> ArchiveFile:
+    def get_info_file(
+        self, temp_dir: Path, _data: Sequence[tuple[Path, str, int]] = ()
+    ) -> ArchiveFile:
         pkg_info = temp_dir.joinpath("PKG-INFO")
         with pkg_info.open("w") as file:
             file.writelines(f"{line}\n" for line in self.get_metadata_content())

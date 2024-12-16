@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from functools import total_ordering
 from itertools import dropwhile
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from phosphorus.lib.constants import ComparisonOperator
 from phosphorus.lib.exceptions import UnreachableCodeError
@@ -244,7 +244,7 @@ class Version:
     def __str__(self) -> str:
         return f"{self.epoch}{self.release}{self.pre}{self.post}{self.dev}{self.local}"
 
-    def __lt__(self, other: Any) -> bool:
+    def __lt__(self, other: object) -> bool:
         if not isinstance(other, Version):
             return NotImplemented
 

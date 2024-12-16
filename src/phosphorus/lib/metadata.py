@@ -6,7 +6,7 @@ from dataclasses import asdict, dataclass
 from hashlib import sha256
 from importlib.machinery import SourceFileLoader
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, TypeVar, cast
 
 from trove_classifiers import classifiers
 
@@ -26,12 +26,23 @@ from phosphorus.lib.exceptions import (
 from phosphorus.lib.packages import Package
 from phosphorus.lib.requirements import Requirement, RequirementGroup
 from phosphorus.lib.tags import Tag
+from phosphorus.lib.types import (
+    Author,
+    Comparable,
+    JsonType,
+    Lockfile,
+    MetadataSettings,
+    PyProjectSettings,
+)
 from phosphorus.lib.versions import Version, VersionClause
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
     from typing_extensions import Self  # upgrade: py3.10: import from typing
+
+
+T = TypeVar("T", bound=Comparable)
 
 
 @dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
@@ -57,11 +68,11 @@ class LocalPackage:
 
 
 class JSONEncoder(json.JSONEncoder):
-    def __init__(self, *args: Any, **kwargs: Any) -> None:
-        self.base_dir = kwargs.pop("base_dir")
-        super().__init__(*args, **kwargs)
+    def __init__(self, *, base_dir: Path, **kwargs: Any) -> None:  # type: ignore[misc]  # noqa: ANN401
+        self.base_dir = base_dir
+        super().__init__(**kwargs)
 
-    def default(self, o: Any) -> Any:
+    def default(self, o: object) -> JsonType:
         if isinstance(o, Path):  # upgrade: py3.9: Use match
             if o == Path(os.devnull):
                 return os.devnull
@@ -75,7 +86,7 @@ class JSONEncoder(json.JSONEncoder):
         if isinstance(o, MarkerVariable):
             return str(o)
 
-        return super().default(o)
+        return cast(JsonType, super().default(o))
 
 
 @dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
@@ -113,7 +124,7 @@ class Metadata:
             summary=settings.get("description", ""),
             homepage=urls.get("homepage", ""),
             license=get_license(settings),
-            readme=settings_path.parent.joinpath(settings.get("readme", os.devnull)),
+            readme=settings_path.parent.joinpath(get_readme(settings)),
             keywords=keep_unique(settings.get("keywords", [])),
             tags=(Tag(interpreter="py3", abi=None, platform="any"),),
             authors=get_contributors(settings.get("authors", [])),
@@ -142,6 +153,11 @@ class Metadata:
         return self.base_dir.joinpath(lock_file_name)
 
     @property
+    def lockfile_content(self) -> Lockfile:
+        with self.lockfile.open("rb") as file:
+            return cast(Lockfile, toml_parser(file))
+
+    @property
     def pyproject(self) -> Path:
         return self.base_dir.joinpath(pyproject_base_name)
 
@@ -153,7 +169,7 @@ class Metadata:
         return sha256(json_dump.encode("utf-8")).hexdigest()
 
 
-def keep_unique(items: Iterable[Any]) -> tuple[Any, ...]:
+def keep_unique(items: Iterable[T]) -> tuple[T, ...]:
     return tuple(sorted(set(items)))
 
 
@@ -168,28 +184,35 @@ def get_pyproject(cwd: Path | None) -> Path:
     return pyproject
 
 
-def get_contributors(settings: list[dict[str, str]]) -> tuple[Contributor, ...]:
+def get_contributors(settings: list[Author]) -> tuple[Contributor, ...]:
     return tuple(Contributor.from_data(data) for data in settings)
 
 
-def get_settings(settings_path: Path) -> dict[str, Any]:
+def get_readme(settings: MetadataSettings) -> Path:
+    readme = settings.get("readme", os.devnull)
+    if isinstance(readme, dict):
+        return Path(readme["file"])
+    return Path(readme)
+
+
+def get_settings(settings_path: Path) -> MetadataSettings:
     with settings_path.open("rb") as settings_file:
-        all_settings = toml_parser(settings_file)
-    settings = all_settings.get("project", {})
+        all_settings = cast(PyProjectSettings, toml_parser(settings_file))
+    settings = cast(MetadataSettings, all_settings.get("project", {}))
     phosphorus_settings = all_settings.get("tool", {}).get("phosphorus", {})
     settings["dev_dependencies"] = phosphorus_settings.get("dev-dependencies", {})
     settings["dynamic_definitions"] = phosphorus_settings.get("dynamic", {})
     settings["included_packages"] = phosphorus_settings.get("packages", {})
-    return cast(dict[str, Any], settings)
+    return settings
 
 
-def get_package(settings: dict[str, Any]) -> Package:
+def get_package(settings: MetadataSettings) -> Package:
     return Package(name=settings["name"])
 
 
-def get_version(settings: dict[str, Any]) -> Version:
+def get_version(settings: MetadataSettings) -> Version:
     version_key = "version"
-    version = settings.get(version_key)
+    version = cast(str, settings.get(version_key))
     if version:
         return Version.from_string(version)
     try:
@@ -202,11 +225,9 @@ def get_version(settings: dict[str, Any]) -> Version:
     return Version.from_string(version)
 
 
-def get_license(settings: dict[str, Any]) -> str:
+def get_license(settings: MetadataSettings) -> str:
     license_info = settings.get("license", {})
-    if license_text := license_info.get("text", ""):
-        return cast(str, license_text)
-    return ""
+    return license_info.get("text", "")
 
 
 def get_classifiers(user_classifiers: list[str]) -> tuple[str, ...]:
@@ -235,10 +256,10 @@ def get_requirements(
 
 
 def get_package_paths(
-    settings: dict[str, Any], base_dir: Path
+    settings: MetadataSettings, base_dir: Path
 ) -> tuple[LocalPackage, ...]:
     package_key = "included_packages"
-    if packages := settings.get(package_key, []):
+    if packages := cast(list[str], settings.get(package_key, [])):
         output = packages
     elif base_dir.joinpath("src").exists():
         output = ["src"]

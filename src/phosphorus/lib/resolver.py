@@ -8,6 +8,7 @@ from phosphorus.lib.constants import hash_prefix
 from phosphorus.lib.packages import Package
 from phosphorus.lib.requirements import ResolvedRequirement
 from phosphorus.lib.subprocess import uv_run
+from phosphorus.lib.term import write
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -65,7 +66,7 @@ class Resolver:
                 ["pip", "compile", "--generate-hashes", "--universal", tmp.name],
                 verbose=self.verbosity > 0,
             )
-            print("✅ Done!")
+            write(["✅ Done!"])
 
         resolved_packages: list[ResolvedPackageInfo] = []
         for raw_package_info in self.split_resolution(output.stdout.decode()):

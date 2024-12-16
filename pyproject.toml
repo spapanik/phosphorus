@@ -79,8 +79,8 @@ target-version = [
 
 [tool.mypy]
 check_untyped_defs = true
-disallow_any_decorated = false     # (strict mode): Remove all Any types
-disallow_any_explicit = false      # (strict mode): Remove all Any types
+disallow_any_decorated = true
+disallow_any_explicit = true
 disallow_any_expr = false          # many builtins are Any
 disallow_any_generics = true
 disallow_any_unimported = true
@@ -116,7 +116,6 @@ select = [
     "ALL",
 ]
 ignore = [
-    "ANN401", # (strict mode): Remove all Any types
     "C901",   # Adding a limit to complexity is too arbitrary
     "COM812", # Avoid magic trailing commas
     "D10",    # Not everything needs a docstring
@@ -124,7 +123,6 @@ ignore = [
     "D213",   # Prefer `multi-line-summary-first-line` (D212)
     "E501",   # Avoid clashes with black
     "PLR09",  # Adding a limit to complexity is too arbitrary
-    "T201",   # (pyutilkit 0.9): use SGROutput instead of print
 ]
 
 [tool.ruff.lint.per-file-ignores]

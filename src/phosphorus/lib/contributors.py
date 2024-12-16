@@ -8,6 +8,8 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self  # upgrade: py3.10: import from typing
 
+    from phosphorus.lib.types import Author
+
 
 @dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
 class Contributor:
@@ -15,7 +17,7 @@ class Contributor:
     email: str
 
     @classmethod
-    def from_data(cls, data: dict[str, str]) -> Self:
+    def from_data(cls, data: Author) -> Self:
         return cls(name=data.get("name", ""), email=data.get("email", ""))
 
     def formatted_email(self) -> str:

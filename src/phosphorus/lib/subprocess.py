@@ -11,6 +11,7 @@ from phosphorus.lib.exceptions import (
     UnreachableCodeError,
     UVError,
 )
+from phosphorus.lib.term import write
 
 if TYPE_CHECKING:
     from subprocess import CompletedProcess
@@ -28,9 +29,9 @@ def uv_run(args: list[str], *, verbose: bool) -> CompletedProcess[bytes]:
     command = [uv_bin, *args]
     output = run(command, capture_output=True)  # noqa: PLW1510, S603
     if output.returncode:
-        print()
+        write()
         if verbose:
-            print(output.stderr.decode())
+            write([output.stderr.decode()], is_error=True)
         raise UVError(*command)
     return output
 
@@ -40,8 +41,8 @@ def python_run(command_string: str, *, verbose: bool) -> CompletedProcess[bytes]
     command = [python_bin, "-c", command_string]
     output = run(command, capture_output=True)  # noqa: PLW1510, S603
     if output.returncode:
-        print()
+        write()
         if verbose:
-            print(output.stderr.decode())
+            write([output.stderr.decode()], is_error=True)
         raise PythonSubprocessError(python_bin, command_string)
     return output

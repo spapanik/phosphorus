@@ -3,7 +3,7 @@ from __future__ import annotations
 import ast
 from contextlib import contextmanager
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Union, cast
 
 from phosphorus.lib.constants import (
     BooleanOperator,
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
     import re
     from collections.abc import Iterator
 
-    from typing_extensions import Self  # upgrade: py3.10: import from typing
+_MarkerList = list[Union["MarkerAtom", BooleanOperator, "_MarkerList"]]
 
 
 @dataclass(frozen=True)  # upgrade: py3.9: Use slots=True
@@ -31,18 +31,6 @@ class MarkerAtom:
 
     def __str__(self) -> str:
         return f"{self.variable} {self.operator} '{self.value}'"
-
-    @classmethod
-    def from_dict(cls, specs: dict[str, Any]) -> Self:
-        variable = specs["variable"]
-        if isinstance(variable, str):
-            variable = MarkerVariable(variable)
-
-        operator = specs["operator"]
-        if isinstance(operator, str):
-            operator = ComparisonOperator(operator)
-
-        return cls(variable=variable, operator=operator, value=specs["value"])
 
     def evaluate_variable(self, extra: str = "", *, verbose: bool = False) -> str:
         if self.variable == MarkerVariable.PYTHON_VERSION:  # upgrade: py3.9: Use match
@@ -183,25 +171,6 @@ class Marker:
             for marker in self.markers
         )
 
-    @classmethod
-    def from_dict(cls, specs: dict[str, Any]) -> Self:
-        boolean = specs.get("boolean")
-        if isinstance(boolean, str):
-            boolean = BooleanOperator(boolean)
-        markers: list[Marker | MarkerAtom] = []
-        if "markers" not in specs:
-            return cls(boolean=None, markers=(MarkerAtom.from_dict(specs),))
-        for marker in specs["markers"]:
-            variable = marker.get("variable")
-            if isinstance(variable, str):
-                variable = MarkerVariable(variable)
-            if isinstance(variable, MarkerVariable):  # upgrade: py3.9: Use match
-                markers.append(MarkerAtom.from_dict(marker))
-            else:
-                markers.append(cls.from_dict(marker))
-
-        return cls(boolean=boolean, markers=tuple(markers))
-
     def evaluate(self, extra: str = "", *, verbose: bool = False) -> bool:
         if not self.markers:
             return True
@@ -240,21 +209,21 @@ class MarkerParser:
         return marker
 
     @classmethod
-    def to_dict(cls, parsed_marker: list[Any] | MarkerAtom) -> Marker | MarkerAtom:
+    def to_dict(cls, parsed_marker: _MarkerList | MarkerAtom) -> Marker | MarkerAtom:
         if isinstance(parsed_marker, MarkerAtom):
             return parsed_marker
 
         if len(parsed_marker) == 1:
-            return cls.to_dict(parsed_marker[0])
+            return cls.to_dict(cast(MarkerAtom, parsed_marker[0]))
 
         operators = {
             operator for index, operator in enumerate(parsed_marker) if index % 2
         }
         if len(operators) == 1:
             return Marker(
-                boolean=parsed_marker[1],
+                boolean=cast(BooleanOperator, parsed_marker[1]),
                 markers=tuple(
-                    cls.to_dict(sub_marker)
+                    cls.to_dict(cast(Union[_MarkerList, MarkerAtom], sub_marker))
                     for index, sub_marker in enumerate(parsed_marker)
                     if not index % 2
                 ),
@@ -264,9 +233,9 @@ class MarkerParser:
         return cls.to_dict(grouped_markers)
 
     @staticmethod
-    def group_boolean_operators(ungrouped: list[Any]) -> list[Any]:
-        output: list[Any] = []
-        tmp: list[Any] = []
+    def group_boolean_operators(ungrouped: _MarkerList) -> _MarkerList:
+        output: _MarkerList = []
+        tmp: _MarkerList = []
         for i in range(len(ungrouped) // 2):
             op = ungrouped[2 * i + 1]
             if op == BooleanOperator.OR and tmp:
@@ -284,16 +253,16 @@ class MarkerParser:
             output.append(ungrouped[-1])
         return output
 
-    def parse_marker(self) -> list[Any]:
-        expression: list[Any] = [self.parse_marker_atom()]
+    def parse_marker(self) -> _MarkerList:
+        expression: _MarkerList = [self.parse_marker_atom()]
         while self.check(TokenRule.BOOLEAN_OPERATOR):
             token = self.read()
             expr_right = self.parse_marker_atom()
             expression.extend([BooleanOperator(token.text), expr_right])
         return expression
 
-    def parse_marker_atom(self) -> list[Any] | MarkerAtom:
-        marker: list[Any] | MarkerAtom
+    def parse_marker_atom(self) -> _MarkerList | MarkerAtom:
+        marker: _MarkerList | MarkerAtom
         self.consume(TokenRule.WHITESPACE)
         if self.check(TokenRule.LEFT_PARENTHESIS, prepare_token=False):
             with self.enclosing_tokens(

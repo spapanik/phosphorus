@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING, TextIO
 from phosphorus.__version__ import __version__
 from phosphorus._seven import TOMLDecodeError
 from phosphorus.lib.resolver import LockEntry, Resolver
-from phosphorus.lib.term import SGRParams, SGRString
+from phosphorus.lib.term import SGRParams, SGRString, write
 from phosphorus.subcommands.base import BaseCommand
 
 if TYPE_CHECKING:
@@ -30,9 +30,12 @@ class LockCommand(BaseCommand):
 
     def run(self) -> None:
         if self.force:
-            print(
-                f"🔄🔒 {SGRString('lock', params=[SGRParams.GREEN])} "
-                "was run with --force, rebuilding the lock ..."
+            write(
+                [
+                    "🔒 ",
+                    SGRString("lock", params=[SGRParams.GREEN]),
+                    " was run with --force, rebuilding the lock...",
+                ]
             )
             dependencies = self.resolve_dependencies()
             return self.write_lockfile(dependencies)
@@ -43,15 +46,15 @@ class LockCommand(BaseCommand):
             p_hash = None
 
         if p_hash == self.meta.p_hash:
-            print("🔒✅ Lockfile is up to date, nothing to do ...")
+            write("🔒✅ Lockfile is up to date, nothing to do...")
             return None
 
-        print("🔄 Lockfile is not up to date, rebuilding the lock ...")
+        write("🔄 Lockfile is not up to date, rebuilding the lock...")
         dependencies = self.resolve_dependencies()
         return self.write_lockfile(dependencies)
 
     def resolve_dependencies(self) -> list[LockEntry]:
-        print("🔍 Resolving dependencies ...")
+        write("🔍 Resolving dependencies...")
         return Resolver(
             self.meta.requirement_groups,
             enforce_pep440=self.enforce_pep440,
@@ -61,7 +64,7 @@ class LockCommand(BaseCommand):
         ).resolve()
 
     def write_lockfile(self, dependencies: list[LockEntry]) -> None:
-        print("🔒 Writing new lockfile ...")
+        write("🔒 Writing new lockfile...")
         with self.meta.lockfile.open("w") as lockfile:
             lockfile.write('["$meta"]\n')
             lockfile.write(f'version = "{__version__}"\n')

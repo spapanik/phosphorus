@@ -3,13 +3,13 @@ from __future__ import annotations
 from itertools import chain
 from pathlib import Path
 from tempfile import TemporaryDirectory
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from phosphorus.lib.contributors import Contributor
 from phosphorus.lib.metadata import Metadata
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Iterator
+    from collections.abc import Iterable, Iterator, Mapping, Sequence
 
     from phosphorus.lib.zipped_file import ArchiveFile
 
@@ -18,7 +18,10 @@ class Builder:
     __slots__ = ("config", "meta", "metadata_dir", "output_dir")
 
     def __init__(
-        self, output_dir: Path, config: dict[str, Any] | None, metadata_dir: Path | None
+        self,
+        output_dir: Path,
+        config: Mapping[str, str] | None,
+        metadata_dir: Path | None,
     ) -> None:
         self.output_dir = output_dir
         self.config = config or {}
@@ -49,7 +52,9 @@ class Builder:
     def non_package_files(self, temp_dir: Path) -> Iterator[ArchiveFile]:
         raise NotImplementedError
 
-    def get_info_file(self, temp_dir: Path, data: Any) -> ArchiveFile:
+    def get_info_file(
+        self, temp_dir: Path, data: Sequence[tuple[Path, str, int]]
+    ) -> ArchiveFile:
         raise NotImplementedError
 
     def write_files(

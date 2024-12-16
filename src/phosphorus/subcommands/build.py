@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from phosphorus.construction.api import build_sdist, build_wheel
-from phosphorus.lib.term import SGRParams, SGRString
+from phosphorus.lib.term import SGRParams, SGRString, write
 from phosphorus.subcommands.base import BaseCommand
 
 if TYPE_CHECKING:
@@ -21,16 +21,31 @@ class BuildCommand(BaseCommand):
     def run(self) -> None:
         package_name = SGRString(self.meta.package.name, params=[SGRParams.CYAN])
         version = SGRString(f"({self.meta.version})", params=[SGRParams.BOLD])
-        print(f"Building {package_name} {version} ...")
+        write(["Building ", package_name, version, "..."])
+
         dist_dir = self.meta.base_dir.joinpath("dist")
         dist_dir.mkdir(exist_ok=True)
         if self.build_sdist:
-            print(f"🔧 Building {SGRString('sdist', params=[SGRParams.MAGENTA])} ...")
+            self._print_building_start("sdist")
             sdist = build_sdist(dist_dir.as_posix())
-            sgr_sdist = SGRString(str(sdist), params=[SGRParams.BLUE])
-            print(f"✅ {sgr_sdist} built successfully!")
+            self._print_building_end(sdist)
         if self.build_wheel:
-            print(f"🔧 Building {SGRString('wheel', params=[SGRParams.MAGENTA])} ...")
+            self._print_building_start("wheel")
             wheel = build_wheel(dist_dir.as_posix())
-            sgr_wheel = SGRString(str(wheel), params=[SGRParams.BLUE])
-            print(f"✅ {sgr_wheel} built successfully!")
+            self._print_building_end(wheel)
+
+    @staticmethod
+    def _print_building_start(build_type: str) -> None:
+        write(
+            ["🔧 Building ", SGRString(build_type, params=[SGRParams.MAGENTA]), "..."]
+        )
+
+    @staticmethod
+    def _print_building_end(file_path: str) -> None:
+        write(
+            [
+                "✅ ",
+                SGRString(file_path, params=[SGRParams.BLUE]),
+                " built successfully!",
+            ]
+        )

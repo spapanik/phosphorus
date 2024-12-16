@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import os
+import sys
+from dataclasses import dataclass
 from enum import IntEnum, unique
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
+    from collections.abc import Iterable, Sequence
 
 
 @unique
@@ -37,18 +40,39 @@ class SGRParams(IntEnum):
         return f"\033[{self.value}m"
 
 
-class SGRString(str):
-    _sgr: str
-    __slots__ = ("_sgr",)
+@dataclass(frozen=True, order=True)
+class SGRString:
+    __slots__ = ("sgr", "string")  # upgrade: py3.9: use __slots__ = True
 
-    def __new__(  # noqa: PYI034
-        cls, value: str, *, params: Iterable[SGRParams]
-    ) -> SGRString:
-        string = super().__new__(cls, value)
-        prefix = "".join(param.sequence for param in params)
-        suffix = SGRParams.DEFAULT.sequence
-        string._sgr = f"{prefix}{value}{suffix}"  # noqa: SLF001
-        return string
+    string: str
+    sgr: tuple[SGRParams, ...]
 
-    def __str__(self) -> str:
-        return self._sgr
+    def __init__(self, obj: object, *, params: Iterable[SGRParams] = ()) -> None:
+        object.__setattr__(self, "string", str(obj))
+        object.__setattr__(self, "sgr", tuple(params))
+
+
+def write(
+    objects: Sequence[object] = (),
+    sep: str = "",
+    end: str = os.linesep,
+    *,
+    is_error: bool = False,
+) -> None:
+    n = len(objects)
+    if not n:
+        print(end=end, file=sys.stderr if is_error else sys.stdout)
+        return
+    file = sys.stderr if is_error else sys.stdout
+    for index, obj in enumerate(objects, start=1):
+        current_end = end if index == n else sep
+        if isinstance(obj, SGRString) and file.isatty():
+            sgr_prefix = "".join(code.sequence for code in obj.sgr)
+            clean_object = obj.string
+            sgr_suffix = SGRParams.DEFAULT.sequence if obj.sgr else ""
+        else:
+            sgr_prefix = ""
+            clean_object = str(obj)
+            sgr_suffix = ""
+
+        print(sgr_prefix, clean_object, sgr_suffix, sep="", end=current_end, file=file)

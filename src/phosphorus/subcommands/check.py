@@ -8,6 +8,7 @@ from phosphorus._seven import TOMLDecodeError
 from phosphorus.lib.packages import Package, VersionedPackage
 from phosphorus.lib.pypi import get_version_info
 from phosphorus.lib.subprocess import uv_run
+from phosphorus.lib.term import write
 from phosphorus.lib.versions import Version
 from phosphorus.subcommands.base import BaseCommand
 
@@ -27,7 +28,7 @@ class CheckCommand(BaseCommand):
 
     def run(self) -> None:
         if not self.outdated and not self.lockfile:
-            print("❌ No check selected", file=sys.stderr)
+            write(["❌ No check selected"], is_error=True)
             sys.exit(2)
         if self.outdated:
             self.check_outdated()
@@ -35,10 +36,10 @@ class CheckCommand(BaseCommand):
             try:
                 self.check_lockfile()
             except RuntimeError as exc:
-                print(f"❌ Lockfile check failed: {exc}", file=sys.stderr)
+                write(["❌ Lockfile check failed: ", exc], is_error=True)
                 sys.exit(1)
             else:
-                print(
+                write(
                     "✅ Success: Lockfile is valid and up-to-date with pyproject.toml"
                 )
 
@@ -90,7 +91,7 @@ class CheckCommand(BaseCommand):
         if outdated:
             self.print_outdated(outdated)
         else:
-            print("✅ All installed packages are up-to-date!")
+            write(["✅ All installed packages are up-to-date!"])
 
     @staticmethod
     def print_outdated(outdated: list[InstalledVersions]) -> None:
@@ -109,25 +110,24 @@ class CheckCommand(BaseCommand):
             max_latest = max(max_latest, len(latest_version))
             rows.append((package, installed_version, latest_version))
 
-        print(
-            header[0].center(max_package),
-            " ",
-            header[1].center(max_installed),
-            " ",
-            header[2].center(max_latest),
+        write(
+            [
+                header[0].center(max_package),
+                header[1].center(max_installed),
+                header[2].center(max_latest),
+            ],
+            sep=" ",
         )
-        print(
-            "-" * max_package,
-            " ",
-            "-" * max_installed,
-            " ",
-            "-" * max_latest,
+        write(
+            ["-" * max_package, "-" * max_installed, "-" * max_latest],
+            sep=" ",
         )
         for row in reversed(rows):
-            print(
-                row[0].ljust(max_package),
-                " ",
-                row[1].rjust(max_installed),
-                " ",
-                row[2].rjust(max_latest),
+            write(
+                [
+                    row[0].ljust(max_package),
+                    row[1].rjust(max_installed),
+                    row[2].rjust(max_latest),
+                ],
+                sep=" ",
             )

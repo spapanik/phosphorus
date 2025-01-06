@@ -4,6 +4,8 @@
 [![lint][lint_badge]][lint_url]
 [![tests][test_badge]][test_url]
 [![license][licence_badge]][licence_url]
+[![codecov][codecov_badge]][codecov_url]
+[![readthedocs][readthedocs_badge]][readthedocs_url]
 [![pypi][pypi_badge]][pypi_url]
 [![downloads][pepy_badge]][pepy_url]
 [![code style: black][black_badge]][black_url]
@@ -27,6 +29,10 @@ external dependencies, although some common packaging tools are required.
 [test_url]: https://github.com/spapanik/phosphorus/actions/workflows/tests.yml
 [licence_badge]: https://img.shields.io/pypi/l/phosphorus
 [licence_url]: https://phosphorus.readthedocs.io/en/stable/LICENSE/
+[codecov_badge]: https://codecov.io/github/spapanik/phosphorus/graph/badge.svg?token=Q20F84BW72
+[codecov_url]: https://codecov.io/github/spapanik/phosphorus
+[readthedocs_badge]: https://readthedocs.org/projects/phosphorus/badge/?version=latest
+[readthedocs_url]: https://phosphorus.readthedocs.io/en/latest/
 [pypi_badge]: https://img.shields.io/pypi/v/phosphorus
 [pypi_url]: https://pypi.org/project/phosphorus
 [pepy_badge]: https://pepy.tech/badge/phosphorus

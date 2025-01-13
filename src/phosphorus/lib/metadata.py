@@ -134,7 +134,7 @@ class Metadata:
             ),
             classifiers=get_classifiers(settings.get("classifiers", [])),
             requirement_groups=get_requirements(
-                settings.get("dependencies", []), settings.get("dev_dependencies", {})
+                settings.get("dependencies", []), settings.get("dependency_groups", {})
             ),
             project_urls=keep_unique(
                 ProjectURL(name=name, url=url)
@@ -199,8 +199,10 @@ def get_settings(settings_path: Path) -> MetadataSettings:
     with settings_path.open("rb") as settings_file:
         all_settings = cast(PyProjectSettings, toml_parser(settings_file))
     settings = cast(MetadataSettings, all_settings.get("project", {}))
+    settings["dependency_groups"] = cast(
+        dict[str, list[str]], all_settings.get("dependency-groups", {})
+    )
     phosphorus_settings = all_settings.get("tool", {}).get("phosphorus", {})
-    settings["dev_dependencies"] = phosphorus_settings.get("dev-dependencies", {})
     settings["dynamic_definitions"] = phosphorus_settings.get("dynamic", {})
     settings["included_packages"] = phosphorus_settings.get("packages", {})
     return settings
@@ -239,11 +241,11 @@ def get_classifiers(user_classifiers: list[str]) -> tuple[str, ...]:
 
 
 def get_requirements(
-    dependencies: list[str], dev_dependencies: dict[str, list[str]]
+    dependencies: list[str], dependency_groups: dict[str, list[str]]
 ) -> tuple[RequirementGroup, ...]:
     output = {
         group: [Requirement.from_string(constraint) for constraint in requirement_info]
-        for group, requirement_info in dev_dependencies.items()
+        for group, requirement_info in dependency_groups.items()
     }
     output["main"] = [
         Requirement.from_string(constraint) for constraint in dependencies

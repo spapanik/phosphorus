@@ -46,7 +46,7 @@ documentation = "https://phosphorus.readthedocs.io/en/stable/"
 [project.scripts]
 p = "phosphorus.__main__:main"
 
-[tool.phosphorus.dev-dependencies]
+[dependency-groups]
 dev = [
     "ipdb~=0.13",
     "ipython~=8.18",

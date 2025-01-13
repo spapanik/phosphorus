@@ -66,15 +66,9 @@ class VersionInfoDict(TypedDict, total=False):
     releases: list[str]
 
 
-PhosphorusSettings = TypedDict(
-    "PhosphorusSettings",
-    {
-        "dev-dependencies": dict[str, list[str]],
-        "dynamic": dict[str, dict[str, str]],
-        "packages": dict[str, list[str]],
-    },
-    total=False,
-)
+class PhosphorusSettings(TypedDict, total=False):
+    dynamic: dict[str, dict[str, str]]
+    packages: dict[str, list[str]]
 
 
 class ToolSettings(TypedDict, total=False):
@@ -122,6 +116,6 @@ class PyProjectSettings(TypedDict, total=False):
 
 
 class MetadataSettings(ProjectSettings, total=False):
-    dev_dependencies: dict[str, list[str]]
+    dependency_groups: dict[str, list[str]]
     dynamic_definitions: dict[str, dict[str, str]]
     included_packages: dict[str, list[str]]

@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+### Changed
+
+-   Use `dependency-groups` instead of `tool.phosphorus.dev-dependencies`
+
 ## [0.8.3] - 2024-12-14
 
 ### Fixed

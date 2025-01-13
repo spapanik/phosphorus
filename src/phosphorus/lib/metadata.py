@@ -26,7 +26,7 @@ from phosphorus.lib.exceptions import (
 from phosphorus.lib.packages import Package
 from phosphorus.lib.requirements import Requirement, RequirementGroup
 from phosphorus.lib.tags import Tag
-from phosphorus.lib.types import (
+from phosphorus.lib.type_defs import (
     Author,
     Comparable,
     JsonType,

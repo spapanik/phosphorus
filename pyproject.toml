@@ -156,6 +156,9 @@ source = [
     "src/",
 ]
 data_file = ".cov_cache/coverage.dat"
+omit = [
+    "src/phosphorus/lib/type_defs.py",
+]
 
 [tool.coverage.report]
 exclude_also = [

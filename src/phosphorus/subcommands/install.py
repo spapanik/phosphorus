@@ -11,14 +11,14 @@ from phosphorus.lib.markers import Marker
 from phosphorus.lib.packages import Package
 from phosphorus.lib.requirements import ResolvedRequirement
 from phosphorus.lib.resolver import LockEntry
-from phosphorus.lib.subprocess import uv_run
+from phosphorus.lib.run import uv_run
 from phosphorus.lib.term import SGRParams, SGRString, write
 from phosphorus.lib.versions import Version
 from phosphorus.subcommands.base import BaseCommand
 from phosphorus.subcommands.lock import LockCommand
 
 if TYPE_CHECKING:
-    from phosphorus.lib.types import PackageDiff
+    from phosphorus.lib.type_defs import PackageDiff
 
 
 class InstallCommand(BaseCommand):

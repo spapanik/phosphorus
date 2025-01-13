@@ -12,7 +12,7 @@ from phosphorus.lib.regex import version_pattern, version_separators
 if TYPE_CHECKING:
     from typing_extensions import Self  # upgrade: py3.10: import from typing
 
-    from phosphorus.lib.types import Match
+    from phosphorus.lib.type_defs import Match
 
 
 @dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True

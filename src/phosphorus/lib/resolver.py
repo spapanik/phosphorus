@@ -7,14 +7,14 @@ from typing import TYPE_CHECKING
 from phosphorus.lib.constants import hash_prefix
 from phosphorus.lib.packages import Package
 from phosphorus.lib.requirements import ResolvedRequirement
-from phosphorus.lib.subprocess import uv_run
+from phosphorus.lib.run import uv_run
 from phosphorus.lib.term import write
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from phosphorus.lib.requirements import RequirementGroup
-    from phosphorus.lib.types import ResolvedPackageInfo
+    from phosphorus.lib.type_defs import ResolvedPackageInfo
 
 
 @dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True

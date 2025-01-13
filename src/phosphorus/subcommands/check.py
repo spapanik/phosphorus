@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 from phosphorus._seven import TOMLDecodeError
 from phosphorus.lib.packages import Package, VersionedPackage
 from phosphorus.lib.pypi import get_version_info
-from phosphorus.lib.subprocess import uv_run
+from phosphorus.lib.run import uv_run
 from phosphorus.lib.term import write
 from phosphorus.lib.versions import Version
 from phosphorus.subcommands.base import BaseCommand
@@ -15,7 +15,7 @@ from phosphorus.subcommands.base import BaseCommand
 if TYPE_CHECKING:
     from argparse import Namespace
 
-    from phosphorus.lib.types import InstalledVersions
+    from phosphorus.lib.type_defs import InstalledVersions
 
 
 class CheckCommand(BaseCommand):

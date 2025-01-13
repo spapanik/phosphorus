@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self  # upgrade: py3.10: import from typing
 
     from phosphorus.lib.requirements import Requirement
-    from phosphorus.lib.types import VersionInfoDict
+    from phosphorus.lib.type_defs import VersionInfoDict
 
 
 @dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True

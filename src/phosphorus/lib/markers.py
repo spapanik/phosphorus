@@ -12,7 +12,7 @@ from phosphorus.lib.constants import (
     TokenRule,
 )
 from phosphorus.lib.exceptions import UnreachableCodeError
-from phosphorus.lib.subprocess import python_run
+from phosphorus.lib.run import python_run
 from phosphorus.lib.utils import canonicalise_name
 from phosphorus.lib.versions import Version, VersionClause
 

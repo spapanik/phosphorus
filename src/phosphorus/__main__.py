@@ -1,4 +1,4 @@
-from phosphorus.lib.parser import parse_args
+from phosphorus.lib.cli import parse_args
 from phosphorus.subcommands.build import BuildCommand
 from phosphorus.subcommands.check import CheckCommand
 from phosphorus.subcommands.install import InstallCommand

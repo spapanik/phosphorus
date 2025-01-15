@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+### Removed
+
+-   Dropped install, check, and lock in favour of [uv]
+
 ## [0.9.0] - 2025-01-13
 
 ### Changed
@@ -126,6 +130,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
+[uv]: https://docs.astral.sh/uv/
 [Unreleased]: https://github.com/spapanik/phosphorus/compare/v0.9.0...main
 [0.9.0]: https://github.com/spapanik/phosphorus/compare/v0.8.3...v0.9.0
 [0.8.3]: https://github.com/spapanik/phosphorus/compare/v0.8.2...v0.8.3

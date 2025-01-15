@@ -102,11 +102,8 @@ class Builder:
         for classifier in self.meta.classifiers:
             yield f"Classifier: {classifier}"
 
-        for requirement_group in self.meta.requirement_groups:
-            if requirement_group.group == "main":
-                for requirement in requirement_group.requirements:
-                    yield f"Requires-Dist: {requirement}"
-                break
+        for requirement in self.meta.requirements:
+            yield f"Requires-Dist: {requirement}"
 
         for project_url in self.meta.project_urls:
             yield f"Project-URL: {project_url.name.title()}, {project_url.url}"

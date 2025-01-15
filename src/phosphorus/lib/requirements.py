@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from phosphorus.lib.markers import Marker
 from phosphorus.lib.packages import Package
 from phosphorus.lib.regex import requirement_pattern
-from phosphorus.lib.versions import Version, VersionClause
+from phosphorus.lib.versions import VersionClause
 
 if TYPE_CHECKING:
     from typing_extensions import Self  # upgrade: py3.10: import from typing
@@ -49,31 +49,3 @@ class Requirement:
         if self.marker:
             parts.append(f"; {self.marker}")
         return " ".join(parts)
-
-
-@dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
-class RequirementGroup:
-    group: str
-    requirements: tuple[Requirement, ...]
-
-
-@dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
-class ResolvedRequirement:
-    package: Package
-    version: Version
-    marker: Marker = field(default_factory=lambda: Marker(boolean=None, markers=()))
-
-    @classmethod
-    def from_string(cls, requirement: str) -> Self:
-        resolved_package, *markers = requirement.split(";", maxsplit=1)
-        marker = (
-            Marker.from_string(markers[0].strip())
-            if markers
-            else Marker(boolean=None, markers=())
-        )
-        name, matched_version = resolved_package.split("==")
-        return cls(
-            package=Package(name=name),
-            version=Version.from_string(matched_version),
-            marker=marker,
-        )

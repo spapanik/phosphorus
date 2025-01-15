@@ -4,13 +4,7 @@ import shutil
 from subprocess import run
 from typing import TYPE_CHECKING
 
-from uv import find_uv_bin
-
-from phosphorus.lib.exceptions import (
-    PythonSubprocessError,
-    UnreachableCodeError,
-    UVError,
-)
+from phosphorus.lib.exceptions import PythonSubprocessError, UnreachableCodeError
 from phosphorus.lib.term import write
 
 if TYPE_CHECKING:
@@ -22,18 +16,6 @@ def find_python_bin() -> str:
     if python_bin is None:
         raise UnreachableCodeError
     return python_bin
-
-
-def uv_run(args: list[str], *, verbose: bool) -> CompletedProcess[bytes]:
-    uv_bin = find_uv_bin()
-    command = [uv_bin, *args]
-    output = run(command, capture_output=True)  # noqa: PLW1510, S603
-    if output.returncode:
-        write()
-        if verbose:
-            write([output.stderr.decode()], is_error=True)
-        raise UVError(*command)
-    return output
 
 
 def python_run(command_string: str, *, verbose: bool) -> CompletedProcess[bytes]:

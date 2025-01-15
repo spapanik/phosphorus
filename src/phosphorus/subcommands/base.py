@@ -17,6 +17,3 @@ class BaseCommand:
 
     def run(self) -> None:
         raise NotImplementedError
-
-    def get_current_hash(self) -> str:
-        return self.meta.lockfile_content["$meta"]["hash"]

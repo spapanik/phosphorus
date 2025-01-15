@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import shlex
 from typing import TYPE_CHECKING
 
 from phosphorus.lib.constants import pyproject_base_name
@@ -29,15 +28,6 @@ class ImproperlyConfiguredProjectError(RuntimeError):
 
     def __init__(self, key: str) -> None:
         msg = f"The pyproject.toml file is missing the key: {key} and isn't marked as dynamic"
-        super().__init__(msg)
-
-
-class UVError(RuntimeError):
-    """uv exited unsuccessfully."""
-
-    def __init__(self, *command_parts: str) -> None:
-        command_string = shlex.join(command_parts)
-        msg = f"uv command `{command_string}` exited with a non-zero status code"
         super().__init__(msg)
 
 

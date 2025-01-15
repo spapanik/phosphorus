@@ -2,13 +2,9 @@ from __future__ import annotations
 
 import re
 from enum import Enum, unique
-from pathlib import Path
 
-package_cache = Path.home().joinpath(".cache/phosphorus/packages/")
-pypi_cache = package_cache.joinpath("PyPI")
 pyproject_base_name = "pyproject.toml"
-lock_file_name = "p-lock.toml"
-hash_prefix = "--hash=sha256:"
+
 
 # Accept the British spelling for the noun
 licence_base_names = {"COPYING", "LICENCE", "LICENCES", "LICENSE", "LICENSES"}

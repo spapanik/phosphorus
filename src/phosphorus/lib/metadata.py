@@ -2,8 +2,8 @@ from __future__ import annotations
 
 import json
 import os
-from dataclasses import asdict, dataclass
-from hashlib import sha256
+from collections.abc import Iterable, Iterator, Sequence
+from dataclasses import dataclass
 from importlib.machinery import SourceFileLoader
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypeVar, cast
@@ -15,7 +15,6 @@ from phosphorus.lib.constants import (
     BooleanOperator,
     ComparisonOperator,
     MarkerVariable,
-    lock_file_name,
     pyproject_base_name,
 )
 from phosphorus.lib.contributors import Contributor
@@ -24,21 +23,19 @@ from phosphorus.lib.exceptions import (
     MissingProjectRootError,
 )
 from phosphorus.lib.packages import Package
-from phosphorus.lib.requirements import Requirement, RequirementGroup
+from phosphorus.lib.requirements import Requirement
 from phosphorus.lib.tags import Tag
 from phosphorus.lib.type_defs import (
     Author,
     Comparable,
+    DependencyGroupMember,
     JsonType,
-    Lockfile,
     MetadataSettings,
     PyProjectSettings,
 )
 from phosphorus.lib.versions import Version, VersionClause
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable
-
     from typing_extensions import Self  # upgrade: py3.10: import from typing
 
 
@@ -104,7 +101,7 @@ class Metadata:
     maintainers: tuple[Contributor, ...]
     python: tuple[VersionClause, ...]
     classifiers: tuple[str, ...]
-    requirement_groups: tuple[RequirementGroup, ...]
+    requirements: tuple[Requirement, ...]
     scripts: tuple[Script, ...]
     project_urls: tuple[ProjectURL, ...]
     package_paths: tuple[LocalPackage, ...]
@@ -133,7 +130,7 @@ class Metadata:
                 VersionClause.from_string(clause) for clause in python.split(",")
             ),
             classifiers=get_classifiers(settings.get("classifiers", [])),
-            requirement_groups=get_requirements(
+            requirements=get_requirements(
                 settings.get("dependencies", []), settings.get("dependency_groups", {})
             ),
             project_urls=keep_unique(
@@ -149,24 +146,8 @@ class Metadata:
         )
 
     @property
-    def lockfile(self) -> Path:
-        return self.base_dir.joinpath(lock_file_name)
-
-    @property
-    def lockfile_content(self) -> Lockfile:
-        with self.lockfile.open("rb") as file:
-            return cast(Lockfile, toml_parser(file))
-
-    @property
     def pyproject(self) -> Path:
         return self.base_dir.joinpath(pyproject_base_name)
-
-    @property
-    def p_hash(self) -> str:
-        json_dump = json.dumps(
-            asdict(self), cls=JSONEncoder, base_dir=self.base_dir, sort_keys=True
-        )
-        return sha256(json_dump.encode("utf-8")).hexdigest()
 
 
 def keep_unique(items: Iterable[T]) -> tuple[T, ...]:
@@ -200,7 +181,8 @@ def get_settings(settings_path: Path) -> MetadataSettings:
         all_settings = cast(PyProjectSettings, toml_parser(settings_file))
     settings = cast(MetadataSettings, all_settings.get("project", {}))
     settings["dependency_groups"] = cast(
-        dict[str, list[str]], all_settings.get("dependency-groups", {})
+        dict[str, Sequence[DependencyGroupMember]],
+        all_settings.get("dependency-groups", {}),
     )
     phosphorus_settings = all_settings.get("tool", {}).get("phosphorus", {})
     settings["dynamic_definitions"] = phosphorus_settings.get("dynamic", {})
@@ -240,21 +222,27 @@ def get_classifiers(user_classifiers: list[str]) -> tuple[str, ...]:
     return unique_classifiers
 
 
-def get_requirements(
-    dependencies: list[str], dependency_groups: dict[str, list[str]]
-) -> tuple[RequirementGroup, ...]:
-    output = {
-        group: [Requirement.from_string(constraint) for constraint in requirement_info]
-        for group, requirement_info in dependency_groups.items()
-    }
-    output["main"] = [
-        Requirement.from_string(constraint) for constraint in dependencies
-    ]
+def _get_requirements(
+    dependency_groups: dict[str, Sequence[DependencyGroupMember]],
+    groups: set[str],
+) -> Iterator[Requirement]:
+    for group, requirements in dependency_groups.items():
+        if group not in groups:
+            continue
+        for requirement in requirements:
+            if isinstance(requirement, str):
+                yield Requirement.from_string(requirement)
+            elif isinstance(requirement, dict):
+                include_group = requirement["include-group"]
+                yield from _get_requirements(dependency_groups, {include_group})
 
-    return keep_unique(
-        RequirementGroup(group=group, requirements=keep_unique(requirements))
-        for group, requirements in output.items()
-    )
+
+def get_requirements(
+    dependencies: Sequence[str],
+    dependency_groups: dict[str, Sequence[DependencyGroupMember]],
+) -> tuple[Requirement, ...]:
+    dependency_groups[""] = dependencies
+    return keep_unique(_get_requirements(dependency_groups, set(dependency_groups)))
 
 
 def get_package_paths(

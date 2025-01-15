@@ -3,12 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Optional, Protocol, TypedDict, Union
 
 if TYPE_CHECKING:
-    from typing_extensions import Self  # upgrade: py3.10: import from typing
+    from collections.abc import Sequence
 
-    from phosphorus.lib.packages import Package
-    from phosphorus.lib.requirements import ResolvedRequirement
-    from phosphorus.lib.resolver import LockEntry
-    from phosphorus.lib.versions import Version
+    from typing_extensions import Self  # upgrade: py3.10: import from typing
 
 Match = Optional[str]  # upgrade: py3.9: Use |
 JsonType = Union[  # upgrade: py3.9: Use |
@@ -19,51 +16,6 @@ JsonType = Union[  # upgrade: py3.9: Use |
 class Comparable(Protocol):
     def __eq__(self, other: object) -> bool: ...
     def __lt__(self, other: Self) -> bool: ...
-
-
-class ResolvedPackageInfo(TypedDict):
-    requirement: ResolvedRequirement
-    hashes: tuple[str, ...]
-    parents: set[Package]
-
-
-class PackageDiff(TypedDict):
-    update: set[tuple[ResolvedRequirement | None, LockEntry]]
-    remove: set[ResolvedRequirement]
-
-
-class InstalledVersions(TypedDict, total=False):
-    package: Package
-    installed_version: Version
-    latest_version: Version
-
-
-class LockfileMeta(TypedDict):
-    version: str
-    hash: str
-
-
-class LockfilePackage(TypedDict):
-    name: str
-    version: str
-    groups: list[str]
-    marker: str
-    hashes: list[str]
-
-
-Lockfile = TypedDict(
-    "Lockfile", {"$meta": LockfileMeta, "packages": list[LockfilePackage]}
-)
-
-
-class VersionInfoDict(TypedDict, total=False):
-    ETag: str
-    requires_dist: list[str]
-    requires_python: str
-    yanked: bool
-    package: str
-    version: str
-    releases: list[str]
 
 
 class PhosphorusSettings(TypedDict, total=False):
@@ -115,7 +67,11 @@ class PyProjectSettings(TypedDict, total=False):
     tool: ToolSettings
 
 
+DependencyGroupDict = TypedDict("DependencyGroupDict", {"include-group": str})
+DependencyGroupMember = Union[str, DependencyGroupDict]  # upgrade: py3.9: Use |
+
+
 class MetadataSettings(ProjectSettings, total=False):
-    dependency_groups: dict[str, list[str]]
+    dependency_groups: dict[str, Sequence[DependencyGroupMember]]
     dynamic_definitions: dict[str, dict[str, str]]
     included_packages: dict[str, list[str]]

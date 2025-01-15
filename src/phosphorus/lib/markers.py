@@ -158,6 +158,9 @@ class Marker:
     def from_string(cls, marker_string: str) -> Marker:
         return MarkerParser(marker_string).parse()
 
+    def __bool__(self) -> bool:
+        return bool(self.markers)
+
     def __str__(self) -> str:
         if not self.markers:
             return ""

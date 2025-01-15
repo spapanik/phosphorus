@@ -42,16 +42,13 @@ class Requirement:
         return cls(package=Package(name=name), clauses=clauses, marker=marker)
 
     def __str__(self) -> str:
-        name = self.package.name
-        clauses = ",".join(str(clause) for clause in self.clauses)
-        marker = str(self.marker)
-        if clauses and marker:
-            return f"{name} ({clauses}) ; {marker}"
-        if clauses:
-            return f"{name} ({clauses})"
-        if marker:
-            return f"{name} ; {marker}"
-        return name
+        parts = [self.package.name]
+        if self.clauses:
+            clauses = ",".join(str(clause) for clause in self.clauses)
+            parts.append(f"({clauses})")
+        if self.marker:
+            parts.append(f"; {self.marker}")
+        return " ".join(parts)
 
 
 @dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True

@@ -1,15 +1,14 @@
 $globals:
   version: "8.1"
+  vars:
+    UV_GROUPS: --all-groups
 
 build:
   phony: true
+  requires:
+    - clean
   commands:
-    - p build ${.extra}
-
-clean:
-  phony: true
-  commands:
-    - rm -f dist/*
+    - p build
 
 install:
   phony: true
@@ -17,7 +16,7 @@ install:
   requires:
     - uv.lock
   commands:
-    - uv sync --all-groups
+    - uv sync --frozen ${UV_GROUPS}
 
 format:
   phony: true
@@ -43,6 +42,11 @@ tests:
     - install
   commands:
     - pytest ${.extra}
+
+clean:
+  phony: true
+  commands:
+    - rm -f dist/*
 
 uv.lock:
   update: true

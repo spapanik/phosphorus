@@ -1,4 +1,4 @@
-# phosphorus: A dependency management and packaging tool
+# phosphorus: A [PEP 621] compliant build backend
 
 [![build][build_badge]][build_url]
 [![lint][lint_badge]][lint_url]
@@ -12,9 +12,7 @@
 [![build automation: yam][yam_badge]][yam_url]
 [![Lint: ruff][ruff_badge]][ruff_url]
 
-`phosphorus` is a dependency management and packaging tool replacement tool that's
-been heavily influenced by [poetry][poetry]. The main goal of phosphorus is to have minimal
-external dependencies, although some common packaging tools are required.
+`phosphorus` is a [PEP 621] compliant build backend, and build tool.
 
 ## Links
 
@@ -45,4 +43,4 @@ external dependencies, although some common packaging tools are required.
 [ruff_url]: https://github.com/charliermarsh/ruff
 [Documentation]: https://phosphorus.readthedocs.io/en/stable/
 [Changelog]: https://phosphorus.readthedocs.io/en/stable/CHANGELOG/
-[poetry]: https://python-poetry.org/
+[PEP 621]: https://peps.python.org/pep-0621/

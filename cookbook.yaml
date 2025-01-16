@@ -1,6 +1,7 @@
 $globals:
   version: "8.1"
   vars:
+    FROZEN: --frozen
     UV_GROUPS: --all-groups
 
 build:
@@ -16,7 +17,7 @@ install:
   requires:
     - uv.lock
   commands:
-    - uv sync --frozen ${UV_GROUPS}
+    - uv sync ${FROZEN} ${UV_GROUPS}
 
 format:
   phony: true

@@ -16,7 +16,7 @@ authors = [
 license = { text = "BSD-3-Clause" }
 
 readme = "docs/README.md"
-description = "A [PEP 621] compliant build backend"
+description = "A PEP 621 compliant build backend"
 keywords = [
     "build",
     "dependency",

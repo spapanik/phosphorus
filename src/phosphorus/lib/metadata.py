@@ -242,7 +242,7 @@ def get_requirements(
     dependency_groups: dict[str, Sequence[DependencyGroupMember]],
 ) -> tuple[Requirement, ...]:
     dependency_groups[""] = dependencies
-    return keep_unique(_get_requirements(dependency_groups, set("")))
+    return keep_unique(_get_requirements(dependency_groups, {""}))
 
 
 def get_package_paths(

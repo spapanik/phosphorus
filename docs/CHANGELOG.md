@@ -6,7 +6,11 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
-## [0.10.1] - 2025-01-16
+### Fixed
+
+-   Fixed adding no requirements at all
+
+## [0.10.1] - 2025-01-16 [YANKED]
 
 ### Fixed
 

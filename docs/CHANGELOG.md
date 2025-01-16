@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+### Fixed
+
+-   Fixed adding dev requirements to main
+
 ## [0.10.0] - 2025-01-16
 
 ### Removed

@@ -84,16 +84,16 @@ class MarkerParser:
             return parsed_marker
 
         if len(parsed_marker) == 1:
-            return cls.to_dict(cast(MarkerAtom, parsed_marker[0]))
+            return cls.to_dict(cast("MarkerAtom", parsed_marker[0]))
 
         operators = {
             operator for index, operator in enumerate(parsed_marker) if index % 2
         }
         if len(operators) == 1:
             return Marker(
-                boolean=cast(BooleanOperator, parsed_marker[1]),
+                boolean=cast("BooleanOperator", parsed_marker[1]),
                 markers=tuple(
-                    cls.to_dict(cast(Union[_MarkerList, MarkerAtom], sub_marker))
+                    cls.to_dict(cast("Union[_MarkerList, MarkerAtom]", sub_marker))
                     for index, sub_marker in enumerate(parsed_marker)
                     if not index % 2
                 ),

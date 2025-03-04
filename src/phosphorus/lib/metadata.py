@@ -65,7 +65,7 @@ class LocalPackage:
 
 
 class JSONEncoder(json.JSONEncoder):
-    def __init__(self, *, base_dir: Path, **kwargs: Any) -> None:  # type: ignore[misc]  # noqa: ANN401
+    def __init__(self, *, base_dir: Path, **kwargs: Any) -> None:  # type: ignore[explicit-any]  # noqa: ANN401
         self.base_dir = base_dir
         super().__init__(**kwargs)
 

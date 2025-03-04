@@ -304,7 +304,10 @@ class Version:
 
     @property
     def canonical_form(self) -> str:
-        return f"{self.epoch}{self.release.canonical_form}{self.pre}{self.post}{self.dev}{self.local}"
+        return (
+            f"{self.epoch}{self.release.canonical_form}{self.pre}"
+            f"{self.post}{self.dev}{self.local}"
+        )
 
     @property
     def public_version(self) -> Self:
@@ -344,7 +347,10 @@ class VersionClause:
             return
         if self.operator in ComparisonOperator.non_local_operator():
             if self.identifier.local:
-                msg = "Local version identifiers are not permitted with this type of clause"
+                msg = (
+                    "Local version identifiers are not permitted "
+                    "with this type of clause"
+                )
                 raise RuntimeError(msg)
             if (
                 self.operator == ComparisonOperator.COMPATIBLE_WITH

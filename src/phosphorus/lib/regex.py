@@ -34,7 +34,7 @@ raw_version_pattern = r"""
 """
 raw_requirement_pattern = r"""
     (?P<name>[a-z0-9\[\]]+(?:[a-z0-9-_.])*)+               # package name
-    (?P<clauses>.*)                                        # comma-separated list of clauses
+    (?P<clauses>.*)                                        # comma-separated clauses
 """
 version_pattern = re.compile(raw_version_pattern, re.VERBOSE | re.IGNORECASE)
 requirement_pattern = re.compile(raw_requirement_pattern, re.VERBOSE | re.IGNORECASE)

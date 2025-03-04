@@ -27,7 +27,10 @@ class ImproperlyConfiguredProjectError(RuntimeError):
     """The pyproject.toml file is not correctly formatted."""
 
     def __init__(self, key: str) -> None:
-        msg = f"The pyproject.toml file is missing the key: {key} and isn't marked as dynamic"
+        msg = (
+            f"The pyproject.toml file is missing the key: {key} "
+            "and isn't marked as dynamic"
+        )
         super().__init__(msg)
 
 
@@ -35,5 +38,8 @@ class PythonSubprocessError(RuntimeError):
     """python as a subprocess exited unsuccessfully."""
 
     def __init__(self, python_binary: str, command: str) -> None:
-        msg = f"python command `{command}` exited with a non-zero status code when run with `{python_binary}`"
+        msg = (
+            f"python command `{command}` exited with a non-zero status "
+            f"code when run with `{python_binary}`"
+        )
         super().__init__(msg)

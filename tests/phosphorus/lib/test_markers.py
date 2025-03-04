@@ -40,7 +40,8 @@ from phosphorus.lib.constants import BooleanOperator, ComparisonOperator, Marker
             ),
         ),
         (
-            "python_version == '3.12' and os_name == 'posix' or sys_platform == 'linux'",
+            "python_version == '3.12' and os_name == 'posix' "
+            "or sys_platform == 'linux'",
             markers.Marker(
                 boolean=BooleanOperator.OR,
                 markers=(

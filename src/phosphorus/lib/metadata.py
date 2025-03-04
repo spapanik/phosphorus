@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import os
-from collections.abc import Iterable, Iterator, Sequence
 from dataclasses import dataclass
 from importlib.machinery import SourceFileLoader
 from pathlib import Path
@@ -36,6 +35,8 @@ from phosphorus.lib.type_defs import (
 from phosphorus.lib.versions import Version, VersionClause
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable, Iterator, Sequence
+
     from typing_extensions import Self  # upgrade: py3.10: import from typing
 
 
@@ -65,7 +66,7 @@ class LocalPackage:
 
 
 class JSONEncoder(json.JSONEncoder):
-    def __init__(self, *, base_dir: Path, **kwargs: Any) -> None:  # type: ignore[misc]  # noqa: ANN401
+    def __init__(self, *, base_dir: Path, **kwargs: Any) -> None:  # type: ignore[explicit-any]  # noqa: ANN401
         self.base_dir = base_dir
         super().__init__(**kwargs)
 
@@ -83,7 +84,7 @@ class JSONEncoder(json.JSONEncoder):
         if isinstance(o, MarkerVariable):
             return str(o)
 
-        return cast(JsonType, super().default(o))
+        return cast("JsonType", super().default(o))
 
 
 @dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
@@ -178,10 +179,10 @@ def get_readme(settings: MetadataSettings) -> Path:
 
 def get_settings(settings_path: Path) -> MetadataSettings:
     with settings_path.open("rb") as settings_file:
-        all_settings = cast(PyProjectSettings, toml_parser(settings_file))
-    settings = cast(MetadataSettings, all_settings.get("project", {}))
+        all_settings = cast("PyProjectSettings", toml_parser(settings_file))
+    settings = cast("MetadataSettings", all_settings.get("project", {}))
     settings["dependency_groups"] = cast(
-        dict[str, Sequence[DependencyGroupMember]],
+        "dict[str, Sequence[DependencyGroupMember]]",
         all_settings.get("dependency-groups", {}),
     )
     phosphorus_settings = all_settings.get("tool", {}).get("phosphorus", {})
@@ -196,7 +197,7 @@ def get_package(settings: MetadataSettings) -> Package:
 
 def get_version(settings: MetadataSettings) -> Version:
     version_key = "version"
-    version = cast(str, settings.get(version_key))
+    version = cast("str", settings.get(version_key))
     if version:
         return Version.from_string(version)
     try:
@@ -249,7 +250,7 @@ def get_package_paths(
     settings: MetadataSettings, base_dir: Path
 ) -> tuple[LocalPackage, ...]:
     package_key = "included_packages"
-    if packages := cast(list[str], settings.get(package_key, [])):
+    if packages := cast("list[str]", settings.get(package_key, [])):
         output = packages
     elif base_dir.joinpath("src").exists():
         output = ["src"]

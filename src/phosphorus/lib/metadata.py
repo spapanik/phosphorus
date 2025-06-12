@@ -43,19 +43,19 @@ if TYPE_CHECKING:
 T = TypeVar("T", bound=Comparable)
 
 
-@dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, order=True, slots=True)
 class Script:
     command: str
     entrypoint: str
 
 
-@dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, order=True, slots=True)
 class ProjectURL:
     name: str
     url: str
 
 
-@dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, order=True, slots=True)
 class LocalPackage:
     base_dir: Path
     path: Path
@@ -71,23 +71,24 @@ class JSONEncoder(json.JSONEncoder):
         super().__init__(**kwargs)
 
     def default(self, o: object) -> JsonType:
-        if isinstance(o, Path):  # upgrade: py3.9: Use match
-            if o == Path(os.devnull):
-                return os.devnull
-            if o.is_absolute():
-                return o.relative_to(self.base_dir).as_posix()
-            return o.as_posix()
-        if isinstance(o, ComparisonOperator):
-            return str(o)
-        if isinstance(o, BooleanOperator):
-            return str(o)
-        if isinstance(o, MarkerVariable):
-            return str(o)
+        match o:
+            case Path():
+                if o == Path(os.devnull):
+                    return os.devnull
+                if o.is_absolute():
+                    return o.relative_to(self.base_dir).as_posix()
+                return o.as_posix()
+            case ComparisonOperator():
+                return str(o)
+            case BooleanOperator():
+                return str(o)
+            case MarkerVariable():
+                return str(o)
+            case _:
+                return cast("JsonType", super().default(o))
 
-        return cast("JsonType", super().default(o))
 
-
-@dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, order=True, slots=True)
 class Metadata:
     base_dir: Path
     package: Package

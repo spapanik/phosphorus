@@ -4,5 +4,6 @@ from phosphorus.subcommands.build import BuildCommand
 
 def main() -> None:
     args = parse_args()
-    if args.subcommand == "build":  # upgrade: py3.9: Use match  # pragma: no branch
-        BuildCommand(args).run()
+    match args.subcommand:
+        case "build":  # pragma: no branch
+            BuildCommand(args).run()

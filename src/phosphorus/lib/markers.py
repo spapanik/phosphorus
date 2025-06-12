@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 _MarkerList = list[Union["MarkerAtom", BooleanOperator, "_MarkerList"]]
 
 
-@dataclass(frozen=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, slots=True)
 class MarkerAtom:
     variable: MarkerVariable
     operator: ComparisonOperator
@@ -30,7 +30,7 @@ class MarkerAtom:
         return f"{self.variable} {self.operator} '{self.value}'"
 
 
-@dataclass(frozen=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, slots=True)
 class Marker:
     boolean: BooleanOperator | None
     markers: tuple[Marker | MarkerAtom, ...]
@@ -56,7 +56,7 @@ class Marker:
         )
 
 
-@dataclass(frozen=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, slots=True)
 class Token:
     name: re.Pattern[str]
     text: str
@@ -93,7 +93,7 @@ class MarkerParser:
             return Marker(
                 boolean=cast("BooleanOperator", parsed_marker[1]),
                 markers=tuple(
-                    cls.to_dict(cast("Union[_MarkerList, MarkerAtom]", sub_marker))
+                    cls.to_dict(cast("_MarkerList | MarkerAtom", sub_marker))
                     for index, sub_marker in enumerate(parsed_marker)
                     if not index % 2
                 ),

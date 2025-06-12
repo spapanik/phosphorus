@@ -3,7 +3,7 @@ from dataclasses import dataclass, field
 from phosphorus.lib.utils import canonicalise_name
 
 
-@dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, order=True, slots=True)
 class Package:
     name: str
     distribution_name: str = field(repr=False, compare=False)

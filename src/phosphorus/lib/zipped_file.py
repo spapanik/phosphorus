@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from phosphorus.lib.metadata import Metadata
 
 
-@dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, order=True, slots=True)
 class ArchiveFile:
     absolute_path: Path
     base_dir: Path

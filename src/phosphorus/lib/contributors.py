@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from phosphorus.lib.type_defs import Author
 
 
-@dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, order=True, slots=True)
 class Contributor:
     name: str
     email: str

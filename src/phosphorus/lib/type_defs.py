@@ -1,19 +1,17 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional, Protocol, TypedDict, Union
+from typing import TYPE_CHECKING, Protocol, TypedDict
 
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from typing_extensions import Self  # upgrade: py3.10: import from typing
 
-Match = Optional[str]  # upgrade: py3.9: Use |
-JsonType = Union[  # upgrade: py3.9: Use |
-    None, bool, int, float, str, list["JsonType"], dict[str, "JsonType"]
-]
+Match = str | None
+JsonType = None | bool | int | float | str | list["JsonType"] | dict[str, "JsonType"]
 
 
-class Comparable(Protocol):
+class Comparable(Protocol):  # noqa: PLW1641
     def __eq__(self, other: object) -> bool: ...
     def __lt__(self, other: Self) -> bool: ...
 
@@ -52,7 +50,7 @@ ProjectSettings = TypedDict(
         "maintainers": list[Author],
         "name": str,
         "optional-dependencies": dict[str, list[str]],
-        "readme": Union[str, FileSettings],
+        "readme": str | FileSettings,
         "requires-python": str,
         "scripts": dict[str, str],
         "urls": dict[str, str],
@@ -68,7 +66,7 @@ class PyProjectSettings(TypedDict, total=False):
 
 
 DependencyGroupDict = TypedDict("DependencyGroupDict", {"include-group": str})
-DependencyGroupMember = Union[str, DependencyGroupDict]  # upgrade: py3.9: Use |
+DependencyGroupMember = str | DependencyGroupDict
 
 
 class MetadataSettings(ProjectSettings, total=False):

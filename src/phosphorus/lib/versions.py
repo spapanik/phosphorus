@@ -15,7 +15,7 @@ if TYPE_CHECKING:
     from phosphorus.lib.type_defs import Match
 
 
-@dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, order=True, slots=True)
 class Epoch:
     epoch: int
 
@@ -27,7 +27,7 @@ class Epoch:
         return f"{self.epoch}!" if self.epoch else ""
 
 
-@dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, order=True, slots=True)
 class Release:
     release: tuple[int, ...]
     full_release: tuple[int, ...] = field(repr=False, compare=False)
@@ -80,7 +80,7 @@ class Release:
         return self.__class__(full_release)
 
 
-@dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, order=True, slots=True)
 class Pre:
     letter: str
     number: int
@@ -111,7 +111,7 @@ class Pre:
         return letter
 
 
-@dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, order=True, slots=True)
 class Post:
     post: int
 
@@ -126,7 +126,7 @@ class Post:
         return f".post{self.post}" if self else ""
 
 
-@dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, order=True, slots=True)
 class Dev:
     dev: int | float
 
@@ -141,7 +141,7 @@ class Dev:
         return f".dev{self.dev}" if self else ""
 
 
-@dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, order=True, slots=True)
 class Local:
     local: tuple[str | int, ...]
 
@@ -168,7 +168,7 @@ class Local:
 
 
 @total_ordering
-@dataclass(frozen=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, slots=True)
 class Version:
     epoch: Epoch
     release: Release
@@ -331,7 +331,7 @@ class Version:
         )
 
 
-@dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, order=True, slots=True)
 class VersionClause:
     operator: ComparisonOperator
     identifier: Version
@@ -389,26 +389,25 @@ class VersionClause:
         if not (self.identifier.pep_440_compliant and candidate.pep_440_compliant):
             return self.match_exact(candidate)
 
-        if (
-            self.operator == ComparisonOperator.COMPATIBLE_WITH
-        ):  # upgrade: py3.9: Use match
-            return self.match_compatible(candidate)
-        if self.operator == ComparisonOperator.EQUAL_TO:
-            return self.match_equality(candidate)
-        if self.operator == ComparisonOperator.NOT_EQUAL:
-            return not self.match_equality(candidate)
-        if self.operator == ComparisonOperator.LESS_OR_EQUAL:
-            return self.match_leq(candidate)
-        if self.operator == ComparisonOperator.GREATER_OR_EQUAL:
-            return self.match_geq(candidate)
-        if self.operator == ComparisonOperator.LESS_THAN:
-            return self.match_lt(candidate)
-        if self.operator == ComparisonOperator.GREATER_THAN:
-            return self.match_gt(candidate)
-        if self.operator == ComparisonOperator.EXACT_MATCH:
-            return self.match_exact(candidate)
-
-        raise UnreachableCodeError
+        match self.operator:
+            case ComparisonOperator.COMPATIBLE_WITH:
+                return self.match_compatible(candidate)
+            case ComparisonOperator.EQUAL_TO:
+                return self.match_equality(candidate)
+            case ComparisonOperator.NOT_EQUAL:
+                return not self.match_equality(candidate)
+            case ComparisonOperator.LESS_OR_EQUAL:
+                return self.match_leq(candidate)
+            case ComparisonOperator.GREATER_OR_EQUAL:
+                return self.match_geq(candidate)
+            case ComparisonOperator.LESS_THAN:
+                return self.match_lt(candidate)
+            case ComparisonOperator.GREATER_THAN:
+                return self.match_gt(candidate)
+            case ComparisonOperator.EXACT_MATCH:
+                return self.match_exact(candidate)
+            case _:
+                raise UnreachableCodeError
 
     def match_compatible(self, candidate: Version) -> bool:
         if not self.match_geq(candidate):

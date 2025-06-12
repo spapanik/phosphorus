@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from typing_extensions import Self  # upgrade: py3.10: import from typing
 
 
-@dataclass(frozen=True, order=True)  # upgrade: py3.9: Use slots=True
+@dataclass(frozen=True, order=True, slots=True)
 class Requirement:
     package: Package
     clauses: tuple[VersionClause, ...]

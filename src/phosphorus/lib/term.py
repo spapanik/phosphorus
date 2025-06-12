@@ -40,10 +40,8 @@ class SGRParams(IntEnum):
         return f"\033[{self.value}m"
 
 
-@dataclass(frozen=True, order=True)
+@dataclass(frozen=True, order=True, slots=True)
 class SGRString:
-    __slots__ = ("sgr", "string")  # upgrade: py3.9: use __slots__ = True
-
     string: str
     sgr: tuple[SGRParams, ...]
 

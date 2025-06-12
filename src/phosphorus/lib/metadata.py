@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import os
 from dataclasses import dataclass
-from importlib.machinery import SourceFileLoader
+from importlib.util import module_from_spec, spec_from_file_location
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, TypeVar, cast
 
@@ -202,12 +202,15 @@ def get_version(settings: MetadataSettings) -> Version:
     if version:
         return Version.from_string(version)
     try:
-        version = settings["dynamic_definitions"][version_key]["file"]
+        version_file = settings["dynamic_definitions"][version_key]["file"]
     except KeyError as exc:
         raise ImproperlyConfiguredProjectError(version_key) from exc
-    name = "_module"
-    _module = SourceFileLoader(name, version).load_module(name)
-    version = _module.__version__
+    spec = spec_from_file_location("_module", version_file)
+    if spec is None or spec.loader is None:
+        raise ImproperlyConfiguredProjectError(version_key)
+    module = module_from_spec(spec)
+    spec.loader.exec_module(module)
+    version = module.__version__
     return Version.from_string(version)
 
 

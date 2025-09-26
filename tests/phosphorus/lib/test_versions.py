@@ -53,7 +53,6 @@ def test_version_wildcards(version_string: str, match_all: bool, epoch: int) -> 
         ("1.2", "==1!1.2", False),
         ("1.2", "==1.2.*", True),
         ("1.2", "==1.2.post1", False),
-        ("1.2", "==1.2.*", True),  # noqa: PT014
         ("1.2.0.5", "==1.2.*", True),
         ("1.2.0.5-1", "==1.2.*", True),
         ("1.2.a1", "==1.2.*", True),
@@ -71,7 +70,6 @@ def test_version_wildcards(version_string: str, match_all: bool, epoch: int) -> 
         ("1.2", "!=1!1.2", True),
         ("1.2", "!=1.2.*", False),
         ("1.2", "!=1.2.post1", True),
-        ("1.2", "!=1.2.*", False),  # noqa: PT014
         ("1.2.0.5", "!=1.2.*", False),
         ("1.2.0.5-1", "!=1.2.*", False),
         ("1.2.a1", "!=1.2.*", False),
